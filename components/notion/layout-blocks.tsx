@@ -1,12 +1,11 @@
 'use client'
 
 import React from 'react'
-import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { TableIcon } from 'lucide-react'
 import { RichText } from './rich-text'
-import { BlockWithChildren } from '@/lib/types'
+import { BlockWithChildren, BlockObjectResponse } from "@/lib/types";
 
 export function TableBlock({ block, children }: { block: any; children?: BlockWithChildren[] }) {
   if (!children || children.length === 0) {

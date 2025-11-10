@@ -35,10 +35,12 @@ export const getSiteStructure = cache(() => {
 
 export const getDefinedData = cache(async (): Promise<PageData[]> => {
   try {
-    console.log("🔍 Grabbing all selected content from your Notion workspace...");
+    console.log(
+      "🔍 Grabbing all selected content from your Notion workspace..."
+    );
     const siteData = getSiteStructure();
-    const structure = Object.values(siteData.structure)
-    
+    const structure = Object.values(siteData.structure);
+
     const fetchedData = await Promise.all(
       structure.map(async (pageDefinition) => {
         try {
@@ -47,6 +49,7 @@ export const getDefinedData = cache(async (): Promise<PageData[]> => {
             data = (await notion.pages.retrieve({
               page_id: pageDefinition.id,
             })) as PageObjectResponse;
+            
             return {
               ...data,
               ...pageDefinition,
@@ -55,7 +58,7 @@ export const getDefinedData = cache(async (): Promise<PageData[]> => {
             data = (await notion.databases.retrieve({
               database_id: pageDefinition.id,
             })) as DatabaseObjectResponse;
-           
+            
             return {
               ...data,
               ...pageDefinition,
@@ -88,7 +91,7 @@ export const getDefinedData = cache(async (): Promise<PageData[]> => {
         }))
     );
 
-    console.log("Defined base data")
+    // console.log("Defined base data")
     // console.table(
     //   data.map((p) => ({
     //     title: p.title,
@@ -98,7 +101,7 @@ export const getDefinedData = cache(async (): Promise<PageData[]> => {
     //     sorts: p.sorts && p.sorts[0],
     //     type: p.type,
     //   }))
-    // );    
+    // );
     return data;
   } catch (error) {
     console.error("❌ Error fetching content:", error);
@@ -216,6 +219,21 @@ export const getPageContentWithChildren = cache(
 
       const blocksWithChildren = await Promise.all(
         blocks.map(async (block): Promise<BlockWithChildren> => {
+          if(block.type === 'image'){
+                                    
+            if (block.image) {
+              if (block.image.type === "external") {
+                block.image.external.url = await downloadImage(
+                  block.image.external.url
+                );
+              } else if (block.image.type === "file") {
+                block.image.file.url = await downloadImage(
+                  block.image.file.url
+                );
+              }
+            }
+
+          }
           if (block.has_children) {
             const children = await getBlockChildren(block.id);
             return {
@@ -226,6 +244,14 @@ export const getPageContentWithChildren = cache(
           return block;
         })
       );
+
+      // console.table(
+      //   blocksWithChildren.map((b) => ({
+      //     object: b.object,
+      //     has_children: b.has_children,
+      //     type : b.type
+      //   }))
+      // );
 
       return blocksWithChildren;
     } catch (error) {
@@ -277,50 +303,39 @@ export const getTableContent = cache(async (tableBlockId: string): Promise<any[]
 async function cleanData(
   data: PageObjectResponse | DatabaseObjectResponse
 ): Promise<CleanData> {
-  const getTitle = (property: any): string => {
-    if (property?.title && property.title.length > 0) {
-      return property.title[0].plain_text || "";
-    }
-    return "";
-  };
+  
+  const properties = cleanProperties(data.properties);
 
-  const getIcon = (page: any): string => {
-    if (page?.icon) {
-      if (page.icon.type === "emoji") {
-        return page.icon.emoji;
-      } else if (page.icon.type === "external") {
-        return page.icon.external.url;
-      } else if (page.icon.type === "file") {
-        return page.icon.file.url;
+  let title = "";
+  if(data.object === "database"){ 
+    title = data.title.map(t=>t.plain_text).join("");
+  }
+  else if ( data.object === "page") {
+    let titleProps = Object.keys(data.properties).filter(p=>data.properties[p].type === "title")
+    title = properties[titleProps[0]].value;
+  }
+
+  let icon = "";
+    if (data?.icon) {
+      if (data.icon.type === "emoji") {
+        icon = data.icon.emoji;
+      } else if (data.icon.type === "external") {
+        icon = data.icon.external.url;
+      } else if (data.icon.type === "file") {
+        icon = data.icon.file.url;
       }
     }
-    return "";
-  };
 
-  const getCover = async (page: any): Promise<string> => {
-    if (page?.cover) {
-      if (page.cover.type === "emoji") {
-        return page.cover.emoji;
-      } else if (page.cover.type === "external") {
-        return await downloadImage(page.cover.external.url);
-      } else if (page.cover.type === "file") {
-        // console.log(`📥 Downloading cover image from Notion...`);
-        return await downloadImage(page.cover.file.url);
-      }
+  let cover = "";
+  if (data?.cover) {
+    if (data.cover.type === "external") {
+      cover = await downloadImage(data.cover.external.url);
+    } else if (data.cover.type === "file") {
+      // console.log(`📥 Downloading cover image from Notion...`);
+      cover = await downloadImage(data.cover.file.url);
     }
-    return "";
-  };
-
-  const icon = getIcon(data);
-  const cover = await getCover(data);
-  const title =
-    getTitle(data.properties.Title) ||
-    getTitle(data.properties.Name) ||
-    getTitle(data.properties.title) ||
-    getTitle(data.properties.name) ||
-    Object.values(data.properties).find((prop) => prop.type === "title")
-      ?.title?.[0]?.plain_text ||
-    "Untitled";
+  }
+  
   const encoded =
     encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="64">
@@ -329,14 +344,14 @@ async function cleanData(
       </svg>`);
 
   return {
-    icon: getIcon(data),
-    title: title,
+    icon,
+    title,
     slug: title
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, ""),
-    cover: cover,
-    properties: data.properties,
+    cover,
+    properties,
     created_time: data.created_time,
     url: data.url,
     metadata: {
@@ -434,7 +449,89 @@ function richTextToMarkdown(richText: any[]): string {
     
     return content
   }).join('')
-} 
+}
+
+function cleanProperties(properties:any): any {
+  for(const prop in properties){
+    const type = properties[prop].type
+    let value = properties[prop][properties[prop].type];
+    const name = prop;
+    switch (type) {
+      case "title":
+        value = Array.isArray(value)
+          ? value.map((v: any) => v.plain_text).join("")
+          : "";          
+        break;
+      case "checkbox":
+        break;
+      case "created_by":
+        value = value[value.type]?.email;
+        break;
+      case "created_time":
+        value = new Date(value);
+        break;
+      case "date":
+        // TO DO : Manage ranges
+        value = new Date(value.start);
+        break;
+      case "email":
+        break;
+      case "files":
+        // TO DO : Manage files ?
+        break;
+      case "formula":
+        // TO DO : Manage formulas ?
+        break;
+      case "last_edited_by":
+        value = value[value.type]?.email;
+        break;
+      case "last_edited_time":
+        value = new Date(value);
+        break;
+      case "multi_select":
+        value = Array.isArray(value)
+          ? value.map((v: any) => ({ name: v.name, color: v.color }))
+          : [];
+        break;
+      case "number":
+        break;
+      case "people":
+        value = Array.isArray(value)
+          ? value.map((v: any) => v[v.type]?.email)
+          : [];
+        break;
+      case "phone_number":
+        break;
+      case "place":
+        value = value?.name ?? null;
+        break;
+      case "relation":
+        // TO DO : Manage relations ?
+        break;
+      case "rich_text":
+        // TO DO : No comprendo
+        break;
+      case "rollup":
+        // TO DO : Manage rollups ?
+        break;
+      case "select":
+        value = { name: value.name, color: value.color };
+        break;
+      case "status":
+        value = { name: value.name, color: value.color };
+        break;
+      case "url":
+        break;
+      default:
+        break;
+    }
+    properties[prop] = {
+      type, 
+      value
+    };
+  }
+  return properties
+}
 
 async function downloadImage(url: string): Promise<string> {
   try {

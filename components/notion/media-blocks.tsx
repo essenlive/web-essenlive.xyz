@@ -25,13 +25,13 @@ export function ImageBlock({ block }: { block: any }) {
   return (
     <div className="my-8">
       <div className="relative rounded-lg overflow-hidden border">
-        {/* <Image
+        <Image
           src={imageUrl}
           alt={caption || 'Image'}
           width={800}
           height={400}
           className="w-full h-auto"
-        /> */}
+        />
       </div>
       {caption && (
         <p className="text-center text-sm text-muted-foreground mt-3 italic">
