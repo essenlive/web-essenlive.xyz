@@ -1,141 +1,240 @@
-# 🚀 Notion-ShadCN-Blog
+# 🚀 Notion-ShadCN-Website
 
-**Your personal blog ready in 1 minute!** ⚡
+**Your personal website ready in 1 minute!** ⚡
 
-A beautiful, fast, and modern blog powered by Notion as CMS and built with Next.js 15 + ShadCN/UI. No database setup, no complex configuration - just connect your Notion workspace and you're ready to go!
-
-## 🖼️ Screenshots
-<img width="1710" alt="Screenshot 2025-06-03 at 00 40 58" src="https://github.com/user-attachments/assets/dca8c148-3753-4b5c-9440-7d84b2a3af61" />
-<img width="1710" alt="Screenshot 2025-06-03 at 00 44 53" src="https://github.com/user-attachments/assets/645821cd-4ca1-4640-b011-71c32405886b" />
-<img width="1710" alt="Screenshot 2025-06-03 at 00 45 01" src="https://github.com/user-attachments/assets/a417a462-d859-4f87-980d-c5f7058de57c" />
-
+A beautiful, fast, and modern website/portfolio powered by Notion as a headless CMS and built with Next.js 16 + React 19 + ShadCN/UI. No database setup, no complex configuration - just connect your Notion workspace and you're ready to go!
 
 ## ✨ Features
 
 - 🎨 **Beautiful UI** - Clean, modern design with ShadCN/UI components
-- 📝 **Notion as CMS** - Write your posts in Notion, see them live instantly
-- 🌙 **Dark/Light Mode** - Automatic theme switching
-- 📱 **Fully Responsive** - Perfect on all devices
-- ⚡ **Lightning Fast** - Built with Next.js 15 and optimized for performance
-- 🔍 **Smart Search** - Search through your posts with ease
-- 🏷️ **Auto Tags** - Automatic tag detection from Notion
+- 📝 **Notion as Headless CMS** - Manage your content in Notion with a flexible JSON structure
+- 🌙 **Dark/Light Mode** - System-aware theme with manual toggle support
+- 📱 **Fully Responsive** - Perfect on all devices with mobile navigation
+- ⚡ **Lightning Fast** - Built with Next.js 16, React 19 (Turbopack) and optimized for performance
+- 🗂️ **Flexible Routing** - Support for both pages and database views with custom paths
 - 📊 **Mermaid Diagrams** - Support for flowcharts and diagrams
-- 🎯 **SEO Ready** - Perfect SEO with automatic meta tags
-- 🚀 **Auto Deploy** - Deploy to Vercel in one click
+- 🎯 **SEO Ready** - Automatic meta tags and OpenGraph support
+- 🖼️ **Image Optimization** - Automatic image downloading and caching from Notion
+- 🔧 **Type-Safe** - Full TypeScript support throughout the codebase
 
 ## 🎯 Quick Start (1 Minute Setup!)
 
 ### 1. Fork & Clone
+
 ```bash
-git clone https://github.com/ddoemonn/Notion-ShadCN-Blog
-cd Notion-ShadCN-Blog
+git clone https://github.com/essenlive/web-essenlive.xyz
+cd web-essenlive.xyz
 npm install
 ```
 
-### 2. Setup Environment
-```bash
-cp .env.example .env.local
-```
+### 2. Create Notion Integration
 
-Edit `.env.local` with your info:
+1. Go to [Notion Integrations](https://www.notion.so/my-integrations)
+2. Click "New integration"
+3. Give it a name (e.g., "My Website")
+4. Copy the "Internal Integration Token" → This is your `NOTION_SECRET`
+5. Share your Notion pages/databases with the integration
+
+### 3. Setup Environment
+
+Create a `.env.local` file with your configuration:
+
 ```env
 # 🔑 Notion API (Required)
 NOTION_SECRET=your_notion_integration_secret_here
 
-# 👤 Your Personal Info
-USER_NAME="Your Name"
-USER_ROLE="Your Role/Title"
-USER_DESCRIPTION="A brief description about yourself"
-USER_EMAIL="your.email@example.com"
-USER_AVATAR="/avatar.jpg"
-
-# 🌐 Site Configuration
-NEXT_PUBLIC_SITE_URL="https://yourdomain.com"
+# 🌐 Site Configuration (Required)
+SITE_DATA={"sitename": "YourSite", "structure": {"/": {"type": "page", "id": "your-page-id"}, "/blog": {"type": "database", "id": "your-database-id", "filter": {"property": "Status", "status": {"equals": "Published"}}, "sorts": [{"property": "Date", "direction": "descending"}]}}, "socials": {"mail": "mailto:hello@example.com", "github": "https://github.com/yourusername"}}
 ```
 
-### 3. Create Notion Integration
-1. Go to [Notion Integrations](https://www.notion.so/my-integrations)
-2. Click "New integration"
-3. Give it a name (e.g., "My Blog")
-4. Copy the "Internal Integration Token" → This is your `NOTION_SECRET`
+**SITE_DATA Structure:**
+- `sitename`: Your website name (displayed in navigation)
+- `structure`: Object mapping URL paths to Notion pages or databases
+  - `type`: Either "page" or "database"
+  - `id`: Notion page/database ID (found in the page URL)
+  - `filter`: (Optional) Database query filter
+  - `sorts`: (Optional) Database sort order
+- `socials`: (Optional) Social media links for the navigation bar
 
-### 6. Run & Deploy
+### 4. Run Development Server
+
 ```bash
 npm run dev
 ```
 
+Visit `http://localhost:3000` to see your site!
+
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 15 (App Router)
-- **Styling**: Tailwind CSS + ShadCN/UI
-- **CMS**: Notion API
-- **Language**: TypeScript
-- **Deployment**: Vercel (recommended)
+- **Framework**: Next.js 16 (App Router with Turbopack)
+- **React**: React 19
+- **Styling**: Tailwind CSS 4 + ShadCN/UI
+- **CMS**: Notion API (@notionhq/client)
+- **Language**: TypeScript 5
+- **Theme**: next-themes with system preference support
 - **Icons**: Lucide React
 - **Diagrams**: Mermaid.js
+- **Code Highlighting**: Prism.js via react-syntax-highlighter
+- **Deployment**: Vercel, Netlify, or any Node.js host
 
 ## 📁 Project Structure
 
-```
-├── app/                    # Next.js app directory
-│   ├── blog/[slug]/       # Dynamic blog post pages
-│   ├── page.tsx           # Homepage
-│   └── layout.tsx         # Root layout
-├── components/            
-│   ├── notion/            # Modular Notion renderer
-│   │   ├── text-blocks.tsx
-│   │   ├── list-blocks.tsx
-│   │   ├── media-blocks.tsx
-│   │   └── layout-blocks.tsx
+```plaintext
+├── app/
+│   ├── [...slug]/         # Catch-all dynamic routes
+│   │   └── page.tsx       # Dynamic page handler
+│   ├── page.tsx           # Homepage (root path handler)
+│   ├── layout.tsx         # Root layout with navigation
+│   └── globals.css        # Global styles
+├── components/
+│   ├── notion/            # Modular Notion block renderers
+│   │   ├── page.tsx       # Page view component
+│   │   ├── database.tsx   # Database list view component
+│   │   ├── notion-renderer.tsx  # Main block router
+│   │   ├── rich-text.tsx  # Rich text formatting
+│   │   ├── text-blocks.tsx     # Headings, paragraphs, quotes
+│   │   ├── list-blocks.tsx     # Lists and todos
+│   │   ├── media-blocks.tsx    # Images, videos, files
+│   │   └── layout-blocks.tsx   # Columns, toggles, tables
 │   ├── ui/                # ShadCN/UI components
-│   └── ...               # Custom components
+│   ├── navigation.tsx     # Header with responsive menu
+│   ├── theme-provider.tsx # Theme context provider
+│   ├── theme-toggle.tsx   # Dark/light mode toggle
+│   ├── page-card.tsx      # Database item card
+│   ├── code.tsx           # Code block with syntax highlighting
+│   └── mermaid-diagram.tsx # Mermaid diagram renderer
 ├── lib/
-│   ├── notion.ts          # Notion API integration
-│   └── utils.ts           # Utilities
-└── public/               # Static assets
+│   ├── notion.ts          # Notion API client & data fetching
+│   ├── types.ts           # TypeScript type definitions
+│   └── utils.ts           # Utility functions
+├── public/
+│   └── images/            # Auto-downloaded Notion images
+└── .env.local             # Environment configuration
 ```
 
 ## 🎨 Customization
 
 ### Styling
-- Modify `app/globals.css` for global styles
-- Use ShadCN/UI components in `components/ui/`
-- Customize colors in `tailwind.config.js`
 
-### Content Types
-The blog automatically supports:
-- 📝 Rich text with formatting
-- 🖼️ Images and media
-- 📊 Tables and databases
-- 🔗 Links and embeds
-- ✅ Todo lists
-- 📋 Code blocks with syntax highlighting
+- Modify [app/globals.css](app/globals.css) for global styles
+- Use ShadCN/UI components in [components/ui/](components/ui/)
+- Customize theme colors using Tailwind CSS 4 configuration
+
+### Site Configuration
+
+The `SITE_DATA` environment variable controls your entire site structure:
+
+**Pages**: Map a URL path directly to a Notion page
+```json
+"/about": {"type": "page", "id": "notion-page-id"}
+```
+
+**Databases**: Map a URL path to a filtered/sorted Notion database
+```json
+"/projects": {
+  "type": "database",
+  "id": "notion-database-id",
+  "filter": {"property": "Status", "status": {"equals": "Published"}},
+  "sorts": [{"property": "Date", "direction": "descending"}]
+}
+```
+
+### Supported Notion Blocks
+
+The renderer automatically supports:
+- 📝 Rich text with formatting (bold, italic, code, strikethrough)
+- 📑 Headings (H1, H2, H3)
+- 🖼️ Images, videos, and files
+- 📊 Tables
+- 🔗 Links and bookmarks
+- ✅ Todo lists and checklists
+- 📋 Code blocks with syntax highlighting (via Prism.js)
 - 📈 Mermaid diagrams
 - 💬 Quotes and callouts
+- 📦 Toggle lists and columns
+- 🔢 Bulleted and numbered lists
+- ➗ Dividers
 
-### Adding Custom Blocks
-Add new block types in `components/notion/` following the modular structure.
+### Adding Custom Block Types
+
+Add new block renderers in [components/notion/](components/notion/) following the modular structure. Each file handles specific block types:
+- Text blocks: paragraphs, headings, quotes
+- List blocks: bulleted, numbered, todos
+- Media blocks: images, videos, files
+- Layout blocks: columns, toggles, tables
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
-1. Push your code to GitHub
-2. Connect your repo to Vercel
-3. Add environment variables in Vercel dashboard
-4. Deploy!
+- **Netlify**: Add environment variables in site settings
+- **Railway**: Works great with Node.js apps
+- **DigitalOcean App Platform**: Fully compatible
+- **Self-hosted**: Run `npm run build && npm start`
 
-### Other Platforms
-- **Netlify**: Works perfectly
-- **Railway**: Great for backend-heavy needs
-- **DigitalOcean**: App Platform ready
+### Environment Variables
 
-## 📝 Writing Your First Post
+Make sure to set these in your deployment platform:
+- `NOTION_SECRET`: Your Notion integration token
+- `SITE_DATA`: Your site configuration JSON (sitename, structure, socials)
 
-1. Open Notion
-2. Create a new page in your database (or anywhere!)
-3. Add a title, some content, tags
-4. Set status to "Published"
-5. Your post is live! 🎉
+## 📝 Content Management
+
+### Creating Pages
+
+1. Create a page in Notion
+2. Share it with your integration
+3. Add the page ID to your `SITE_DATA` structure with the desired URL path
+4. Rebuild/redeploy your site
+
+### Creating Database Collections
+
+1. Create a database in Notion (for blog posts, projects, etc.)
+2. Share it with your integration
+3. Add the database ID to your `SITE_DATA` structure
+4. Optionally add filters and sorts
+5. Each database item automatically gets its own URL: `/path/page-title`
+
+### Dynamic Routing
+
+- Root path (`/`): Defined in `SITE_DATA.structure["/" ]`
+- Custom paths (`/blog`, `/projects`): Defined in `SITE_DATA.structure`
+- Database items: Auto-generated as `/parent-path/slug`
+- Catch-all routes handled by [app/[...slug]/page.tsx](app/[...slug]/page.tsx)
+
+## 🔧 Advanced Features
+
+### Image Optimization
+
+Images from Notion are automatically:
+- Downloaded to `public/images/`
+- Cached by MD5 hash to prevent duplicates
+- Converted to optimized formats
+- Served locally for faster load times
+
+### Theme System
+
+The theme system supports:
+- Light and dark modes
+- System preference detection (prefers-color-scheme)
+- Manual toggle via navigation bar
+- Persistent theme selection
+- No flash on page load
+
+### SEO & Metadata
+
+Each page automatically generates:
+- Dynamic meta tags from Notion content
+- OpenGraph tags for social sharing
+- Twitter Card metadata
+- Favicon from page emoji/icon
+- Proper HTML semantic structure
+
+### Type Safety
+
+Full TypeScript support with:
+- Strict type checking enabled
+- Type definitions for all Notion blocks
+- Type-safe API responses
+- IntelliSense support throughout
 
 ## 🤝 Contributing
 
@@ -143,18 +242,19 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📄 License
 
-MIT License - feel free to use this for your own blog!
+MIT License - feel free to use this for your own website or portfolio!
 
 ## 🙏 Acknowledgments
 
-- [Notion](https://notion.so) for the amazing API
-- [ShadCN/UI](https://ui.shadcn.com/) for beautiful components
-- [Next.js](https://nextjs.org/) for the awesome framework
-- [Vercel](https://vercel.com/) for easy deployment
+- [Notion](https://notion.so) for the powerful API and CMS
+- [ShadCN/UI](https://ui.shadcn.com/) for beautiful, accessible components
+- [Next.js](https://nextjs.org/) for the incredible React framework
+- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
+- [Vercel](https://vercel.com/) for seamless deployment
 
 ---
 
-**Made with ❤️ and ☕ - Happy blogging!**
+**Built thanks to my previous iteration but espacially **
 
-[![Star on GitHub](https://img.shields.io/github/stars/yourusername/notion-shadcn-blog?style=social)](https://github.com/yourusername/notion-shadcn-blog)
-[![Fork on GitHub](https://img.shields.io/github/forks/yourusername/notion-shadcn-blog?style=social)](https://github.com/yourusername/notion-shadcn-blog/fork)
+- [Notion-ShadCN-Blog](https://github.com/ddoemonn/Notion-ShadCN-Blog)
+- [notion-blog-nextjs](https://github.com/samuelkraft/notion-blog-nextjs)
