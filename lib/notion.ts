@@ -15,22 +15,47 @@ import type {
 
 export type { PageData } from "./types";
 import { cache } from 'react'
+import { normalizeSiteStructureUUIDs } from './utils'
 
 const notion = new Client({
   auth: process.env.NOTION_SECRET,
 });
 
-export const getSiteStructure = cache(() => {
 
+export const getSiteStructure = cache(() => {
   if (!process.env.SITE_DATA) {
     throw new Error("SITE_DATA environment variable is not set.");
   }
   const siteData = JSON.parse(process.env.SITE_DATA) as SiteData;
-  Object.keys(siteData.structure).forEach((key) => {
-    siteData.structure[key].path = key;
-  });
-  return siteData
+  // const siteData = {
+  //   sitename: "essenlive.xyz",
+  //   structure: {
+  //     "/": {
+  //       type: "page",
+  //       id: "ada129e9-04c5-4bd0-9c62-df92eb6dc968",
+  //     },
+  //     "/works": {
+  //       type: "database",
+  //       id: "92299709-f3be-4c38-8344-c1ab86ee4c21",
+  //       filter: { property: "Selected", checkbox: { equals: true } },
+  //       sorts: [{ property: "Date", direction: "descending" }],
+  //       "cardProperties": ["Date", "Category", "Tags"],
+  //       "pageProperties": ["Date", "Category", "Status", "Tags", "Documentation"],
+  //     },
+  //   },
+  //   socials: {
+  //     mail: "hello@essenlive.xyz",
+  //     github: "https://github.com/essenlive/",
+  //   },
+  // };
 
+  // Normalize all UUIDs in the structure to dashed format
+  siteData.structure = normalizeSiteStructureUUIDs(siteData.structure);
+
+  (Object.keys(siteData.structure) as Array<keyof typeof siteData.structure>).forEach((key) => {
+    siteData.structure[key].path = key as string;
+  });
+  return siteData as unknown as SiteData;
 })
 
 export const getDefinedData = cache(async (): Promise<PageData[]> => {
@@ -87,6 +112,8 @@ export const getDefinedData = cache(async (): Promise<PageData[]> => {
           path: p.path,
           filter: p.filter,
           sorts: p.sorts,
+          cardProperties: p.cardProperties,
+          pageProperties: p.pageProperties,
           ...(await cleanData(p)),
         }))
     );
@@ -182,6 +209,8 @@ export const getDatabaseItems = async (
             id: p.id,
             type: "page" as const,
             path: `${databaseDefinition.path}/${cleanedData.slug}`,
+            pageProperties: databaseDefinition.pageProperties,
+            cardProperties: databaseDefinition.cardProperties,
             ...cleanedData,
           };
         })
@@ -364,7 +393,7 @@ async function cleanData(
       },
       openGraph: {
         title: title,
-        images: cover ? [cover] : [],
+        images: cover ? [`${cover}`] : [],
       },
       twitter: {
         card: "summary_large_image",
@@ -458,77 +487,95 @@ function cleanProperties(properties:any): any {
     const name = prop;
     switch (type) {
       case "title":
+      case "rich_text":
         value = Array.isArray(value)
           ? value.map((v: any) => v.plain_text).join("")
-          : "";          
+          : "";
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
       case "checkbox":
+      case "email":
+      case "number":
+      case "phone_number":
+      case "url":
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
+      case "files":
+      case "formula":
+      case "relation":
+      case "rollup":
+        // TO DO : Manage the types ?
+        // console.log("🗑️ Deleting unsupported property : " + type)
+        delete properties[prop];
+        break;
+      case "last_edited_by":
       case "created_by":
         value = value[value.type]?.email;
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
+
+      case "last_edited_time":
       case "created_time":
         value = new Date(value);
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
+
       case "date":
         // TO DO : Manage ranges
         value = new Date(value.start);
-        break;
-      case "email":
-        break;
-      case "files":
-        // TO DO : Manage files ?
-        break;
-      case "formula":
-        // TO DO : Manage formulas ?
-        break;
-      case "last_edited_by":
-        value = value[value.type]?.email;
-        break;
-      case "last_edited_time":
-        value = new Date(value);
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
       case "multi_select":
         value = Array.isArray(value)
           ? value.map((v: any) => ({ name: v.name, color: v.color }))
           : [];
-        break;
-      case "number":
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
       case "people":
         value = Array.isArray(value)
           ? value.map((v: any) => v[v.type]?.email)
           : [];
-        break;
-      case "phone_number":
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
       case "place":
         value = value?.name ?? null;
-        break;
-      case "relation":
-        // TO DO : Manage relations ?
-        break;
-      case "rich_text":
-        // TO DO : No comprendo
-        break;
-      case "rollup":
-        // TO DO : Manage rollups ?
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
       case "select":
-        value = { name: value.name, color: value.color };
-        break;
       case "status":
         value = { name: value.name, color: value.color };
-        break;
-      case "url":
+        properties[prop] = {
+          type,
+          value,
+        };
         break;
       default:
         break;
     }
-    properties[prop] = {
-      type, 
-      value
-    };
   }
   return properties
 }
@@ -576,7 +623,6 @@ async function downloadImage(url: string): Promise<string> {
 
     // Write file synchronously to ensure it completes
     fs.writeFileSync(filepath, buffer);
-
     console.log(`✅ Downloaded image: ${filename}`);
 
     // Return the public URL path
@@ -587,3 +633,4 @@ async function downloadImage(url: string): Promise<string> {
     return url;
   }
 }
+

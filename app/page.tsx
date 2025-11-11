@@ -17,7 +17,7 @@ export async function generateMetadata() {
 }
 
 export default async function HomePage() {  
-  
+
   if (!pageData) { notFound();}
 
   // Handle database list view (/category)

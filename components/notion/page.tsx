@@ -5,6 +5,7 @@ import { NotionRenderer } from "@/components/notion-renderer";
 import type { PageData, BlockWithChildren } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { RenderProperties } from "@/components/notion/render-properties";
 
 
 interface PageProps {
@@ -16,6 +17,7 @@ interface PageProps {
 
 export function Page({ page, blocks, header }: PageProps) {
   const router = useRouter();
+  // console.log(page);
 
   // Calculate the parent path by going up one level
   const getParentPath = () => {
@@ -28,41 +30,45 @@ export function Page({ page, blocks, header }: PageProps) {
   return (
     <article className="mt-4">
       {header && (
-        <header className="py-8 pb-0 space-y-8">
+        <header className="pb-0 space-y-4">
           {/* Cover Image */}
           {page.cover && (
-            <div className="mb-16">
-              <div className="relative h-[50vh] rounded-lg overflow-hidden border">
-                <Image
-                  src={page.cover}
-                  alt={page.title}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
+            <div className="relative h-[50vh] rounded-lg overflow-hidden border">
+              <Image
+                src={page.cover}
+                alt={page.title}
+                fill
+                className="object-cover"
+                priority
+              />
             </div>
           )}
-          {/* Tags */}
-          {/* {page.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {page.tags.map((tag: string) => (
-                <Badge key={tag} variant="secondary">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          )} */}
+
+          {/* Display all properties */}
+          {page.properties && (
+            <>
+              <RenderProperties
+                properties={page.properties}
+                filterProperties={page.pageProperties}
+                pageLayout={true}
+              />
+            </>
+          )}
 
           {/* Title */}
-          <h1 className="text-4xl mb-7 font-bold tracking-tight leading-tight">
-            {page.title}
-          </h1>
+          <div className="text-left space-y-2 top-0 bg-background pt-7 pb-4 z-10">
+            <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+              {page.icon && (
+                <span className="text-3xl md:text-4xl">{page.icon}</span>
+              )}
+              {page.title}
+            </h2>
+          </div>
         </header>
       )}
 
       {/* Content */}
-      <section className="pb-16">
+      <section className="pb-4">
         {blocks && blocks.length > 0 ? (
           <div className="prose prose-lg max-w-none">
             <NotionRenderer blocks={blocks} />

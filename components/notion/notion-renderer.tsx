@@ -266,25 +266,18 @@ function LinkPreviewBlock({ block }: { block: any }) {
 
 function EmbedBlock({ block }: { block: any }) {
   const url = block.url
-  
+
   return (
-    <Card className="my-6">
-      <CardContent className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-base text-foreground">Embedded Content</p>
-            <a 
-              href={url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline break-all"
-            >
-              {url}
-            </a>
+          <div className="w-full aspect-video rounded-lg overflow-hidden border bg-muted">
+            <iframe
+              src={url}
+              className="w-full h-full"
+              allowFullScreen
+              loading="lazy"
+              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+              title="Embedded content"
+            />
           </div>
-        </div>
-      </CardContent>
-    </Card>
   )
 }
 

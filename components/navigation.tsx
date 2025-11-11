@@ -10,10 +10,11 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle"
 import { buttonVariants } from "@/components/ui/button"
-import { Menu, Github, Mail } from "lucide-react"
+import { Menu, Github, Mail, LucideLinkedin, LucideInstagram } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
@@ -25,6 +26,8 @@ interface NavigationProps {
   socials?: {
     mail?: string;
     github?: string;
+    linkedin?: string;
+    instagram?: string;
   };
 };
 
@@ -64,11 +67,29 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
               href={socials?.github}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "icon" })
-              )}
+              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
             >
               <Github className="h-4 w-4" />
+            </Link>
+          )}
+          {socials?.linkedin && (
+            <Link
+              href={socials?.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+            >
+              <LucideLinkedin className="h-4 w-4" />
+            </Link>
+          )}
+          {socials?.instagram && (
+            <Link
+              href={socials?.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
+            >
+              <LucideInstagram className="h-4 w-4" />
             </Link>
           )}
           {socials?.mail && (
@@ -76,15 +97,13 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
               href={socials?.mail}
               target="_blank"
               rel="noopener noreferrer"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "icon" })
-              )}
+              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
             >
               <Mail className="h-4 w-4" />
             </Link>
           )}
 
-          <ThemeToggle />
+          <ThemeToggle className={"ml-4"} />
         </div>
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
           <SheetTrigger asChild>
@@ -97,16 +116,19 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-3/4 px-4">
+          <SheetContent side="right" className="w-3/4 px-4">
             <SheetHeader>
-              <SheetTitle> {sitename}</SheetTitle>
+              <SheetTitle className="text-2xl">{sitename}</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col space-y-4 mt-8">
               {navigation?.map((navItem) => (
                 <Link
                   key={navItem.path}
                   href={navItem.path}
-                  className={buttonVariants({ variant: "ghost", size: "lg" })}
+                  className={cn(
+                    buttonVariants({ variant: "ghost", size: "lg" }),
+                    "text-xl h-14"
+                  )}
                   onClick={() => setIsOpen(false)}
                 >
                   {navItem.title}
@@ -114,33 +136,64 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
               ))}
             </div>
             <SheetFooter>
-              <div className="flex space-x-4 mt-8">
-                {/* Social Links */}
-                {socials?.github && (
-                  <Link
-                    href={socials?.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "icon" })
-                    )}
-                  >
-                    <Github className="h-4 w-4" />
-                  </Link>
-                )}
-                {socials?.mail && (
-                  <Link
-                    href={socials?.mail}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "icon" })
-                    )}
-                  >
-                    <Mail className="h-4 w-4" />
-                  </Link>
-                )}
+              <div className="flex justify-between items-center mt-8 w-full">
+                {/* Social Links - Left */}
+                <div className="flex items-center gap-2">
+                  {socials?.github && (
+                    <Link
+                      href={socials?.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants({ variant: "ghost", size: "icon" }),
+                        "h-12 w-12"
+                      )}
+                    >
+                      <Github className="h-5 w-5" />
+                    </Link>
+                  )}
+                  {socials?.linkedin && (
+                    <Link
+                      href={socials?.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants({ variant: "ghost", size: "icon" }),
+                        "h-12 w-12"
+                      )}
+                    >
+                      <LucideLinkedin className="h-5 w-5" />
+                    </Link>
+                  )}
+                  {socials?.instagram && (
+                    <Link
+                      href={socials?.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants({ variant: "ghost", size: "icon" }),
+                        "h-12 w-12"
+                      )}
+                    >
+                      <LucideInstagram className="h-5 w-5" />
+                    </Link>
+                  )}
+                  {socials?.mail && (
+                    <Link
+                      href={socials?.mail}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        buttonVariants({ variant: "ghost", size: "icon" }),
+                        "h-12 w-12"
+                      )}
+                    >
+                      <Mail className="h-5 w-5" />
+                    </Link>
+                  )}
+                </div>
 
+                {/* Theme Toggle - Right */}
                 <ThemeToggle />
               </div>
             </SheetFooter>
