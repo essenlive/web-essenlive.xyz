@@ -21,6 +21,14 @@ interface NotionRendererProps {
 }
 
 export function NotionRenderer({ blocks }: NotionRendererProps) {
+  // console.table(
+  //   blocks.map((b) => ({
+  //     id: b.id,
+  //     type: b.type,
+  //     content: b[b.type],
+  //     data: JSON.stringify(b[b.type]?.rich_text),
+  //   }))
+  // );
   return (
     <div className="space-y-4">
       {blocks.map((block) => (

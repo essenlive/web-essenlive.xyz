@@ -181,7 +181,7 @@ export function RenderProperties({
   className
 }: RenderPropertiesProps) {
   let displayProperties = Object.entries(properties);
-  console.log(displayProperties);
+  // console.log(displayProperties);
 
   // Filter out title if requested
   if (filterOutTitle) {

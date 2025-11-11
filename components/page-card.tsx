@@ -11,8 +11,8 @@ interface PageCardProps {
 export function PageCard({ page }: PageCardProps) {
 
   return (
-    <Link href={page.path}>
-      <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 pt-0">
+    <Link href={page.path} className="h-full">
+      <Card className="h-full flex flex-col group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 pt-0">
         {/* Cover Image */}
         {page.cover && (
           <div className="relative h-48 overflow-hidden">
@@ -36,7 +36,7 @@ export function PageCard({ page }: PageCardProps) {
           </CardTitle>
         </CardHeader>
 
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-3 flex-grow">
           {/* Display all properties */}
           {page.properties && (
             <>

@@ -41,3 +41,4 @@ public/workbox*
 
 # local images
 public/images/*
+.env.local.franges

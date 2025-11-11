@@ -43,7 +43,7 @@ export function Database({ page, items, header }: DatabaseProps) {
 
       {/* Grid - Client Component */}
 
-      <div className="my-7 w-full grid gap-7 md:grid-cols-2 lg:grid-cols-3">
+      <div className="my-7 w-full grid gap-7 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
         {items.map((item) => (
           <PageCard key={item.id} page={item} />
         ))}
