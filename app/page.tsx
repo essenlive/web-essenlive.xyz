@@ -8,7 +8,7 @@ import { Page } from "@/components/notion/page";
 import { Database } from "@/components/notion/database";
 
 // Enable ISR: Revalidate every hour (3600 seconds)
-export const revalidate = 3600;
+// export const revalidate = 3600;
 
 const pageData = await getPageByPath(`/`);
   
