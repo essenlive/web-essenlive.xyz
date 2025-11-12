@@ -258,3 +258,12 @@ MIT License - feel free to use this for your own website or portfolio!
 
 - [Notion-ShadCN-Blog](https://github.com/ddoemonn/Notion-ShadCN-Blog)
 - [notion-blog-nextjs](https://github.com/samuelkraft/notion-blog-nextjs)
+
+
+## ✅ To Do
+
+- [ ] Manage differente pages with same database and other filters
+- [ ] Optimize static generation
+- [ ] Manage more notion blocks and properties.
+- [ ] Optimize images at downlaod
+- [ ] Build a [low tech version](https://solar.lowtechmagazine.com/2018/09/how-to-build-a-low-tech-website/)
