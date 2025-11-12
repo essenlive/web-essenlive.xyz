@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTheme } from 'next-themes'
-import mermaid from 'mermaid'
 
 interface MermaidDiagramProps {
   chart: string
@@ -12,14 +11,24 @@ interface MermaidDiagramProps {
 export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isInitialized, setIsInitialized] = useState(false)
-  const { theme, resolvedTheme } = useTheme()
+  const [mermaidModule, setMermaidModule] = useState<any>(null)
+  const { resolvedTheme } = useTheme()
+
+  // Dynamically import mermaid only when needed
+  useEffect(() => {
+    if (!mermaidModule) {
+      import('mermaid').then((mod) => {
+        setMermaidModule(mod.default)
+      })
+    }
+  }, [mermaidModule])
 
   useEffect(() => {
-    if (!isInitialized) {
-      const isDark = resolvedTheme === 'dark' || 
+    if (!isInitialized && mermaidModule) {
+      const isDark = resolvedTheme === 'dark' ||
                      (resolvedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-      mermaid.initialize({
+      mermaidModule.initialize({
         startOnLoad: false,
         theme: isDark ? 'dark' : 'default',
         securityLevel: 'loose',
@@ -33,21 +42,21 @@ export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
       })
       setIsInitialized(true)
     }
-  }, [isInitialized, resolvedTheme])
+  }, [isInitialized, resolvedTheme, mermaidModule])
 
   useEffect(() => {
-    if (!containerRef.current || !isInitialized) return
+    if (!containerRef.current || !isInitialized || !mermaidModule) return
 
     const renderDiagram = async () => {
       if (!containerRef.current) return
-      
+
       try {
         containerRef.current.innerHTML = ''
-        
-        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
-        
-        const { svg } = await mermaid.render(id, chart)
-        
+
+        const id = `mermaid-${Math.random().toString(36).substring(2, 11)}`
+
+        const { svg } = await mermaidModule.render(id, chart)
+
         if (containerRef.current) {
           containerRef.current.innerHTML = svg
         }
@@ -74,7 +83,7 @@ export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
     }
 
     renderDiagram()
-  }, [chart, isInitialized, resolvedTheme])
+  }, [chart, isInitialized, resolvedTheme, mermaidModule])
 
   return (
     <div 

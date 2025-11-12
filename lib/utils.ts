@@ -1,6 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { formatDistanceToNow } from "date-fns";
 
 
 export function cn(...inputs: ClassValue[]) {
@@ -9,10 +8,13 @@ export function cn(...inputs: ClassValue[]) {
 
 
   export function formatDate(date : Date) {
-
-    return formatDistanceToNow(new Date(date), {
-      addSuffix: true,
+    const d = new Date(date);
+    // Use Intl.DateTimeFormat (en-GB) for day/month/year with short month, then lowercase month and strip leading zero
+    const formatted = d.toLocaleDateString('en-GB', {
+      month: 'short',
+      year: 'numeric',
     });
+    return formatted
   }
 
 /**

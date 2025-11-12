@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
+import withBundleAnalyzer from '@next/bundle-analyzer';
+
+const bundleAnalyzer = withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const nextConfig: NextConfig = {
   images: {
+    formats: ['image/avif', 'image/webp'], // Use modern image formats
     remotePatterns: [
       {
         protocol: 'https',
@@ -35,6 +41,23 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  compiler: {
+    // Remove console logs in production
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  experimental: {
+    // Optimize package imports for better tree-shaking
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-slot',
+    ],
+  },
+  // Enable compression
+  compress: true,
 };
 
-export default nextConfig;
+export default bundleAnalyzer(nextConfig);

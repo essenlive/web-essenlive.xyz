@@ -6,6 +6,7 @@ import type { PageData, BlockWithChildren } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { RenderProperties } from "@/components/notion/render-properties";
+import { Card, CardContent } from "../ui/card";
 
 
 interface PageProps {
@@ -46,17 +47,18 @@ export function Page({ page, blocks, header }: PageProps) {
 
           {/* Display all properties */}
           {page.properties && (
-            <>
-              <RenderProperties
-                properties={page.properties}
-                filterProperties={page.pageProperties}
-                pageLayout={true}
-              />
-            </>
+            <Card>
+              <CardContent>
+                <RenderProperties
+                  properties={page.properties}
+                  filterProperties={page.pageProperties}
+                  pageLayout={true}
+                />
+              </CardContent>
+            </Card>
           )}
-
           {/* Title */}
-          <div className="text-left space-y-2 top-0 bg-background pt-7 pb-4 z-10">
+          <div className="text-left space-y-2 top-0 bg-background py-6 z-10">
             <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
               {page.icon && (
                 <span className="text-3xl md:text-4xl">{page.icon}</span>

@@ -31,6 +31,7 @@ export function ImageBlock({ block }: { block: any }) {
           width={800}
           height={400}
           className="w-full h-auto"
+          loading="lazy"
         />
       </div>
       {caption && (

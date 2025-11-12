@@ -900,6 +900,7 @@ function cleanProperties(properties:any): any {
 
       case "date":
         // TO DO : Manage ranges
+        if(!value?.start) break
         value = new Date(value.start);
         properties[prop] = {
           type,
