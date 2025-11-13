@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import {
   Sheet,
@@ -10,7 +11,6 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetClose
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "@/components/theme-toggle"
 import { buttonVariants } from "@/components/ui/button"
@@ -34,6 +34,7 @@ interface NavigationProps {
 
 export function Navigation({ sitename, navigation, socials }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
@@ -47,15 +48,21 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
           </Link>
           {navigation && (
             <div className="hidden md:flex space-x-1">
-              {navigation.map((navItem) => (
-                <Link
-                  key={navItem.path}
-                  href={navItem.path}
-                  className={buttonVariants({ variant: "ghost" })}
-                >
-                  {navItem.title}
-                </Link>
-              ))}
+              {navigation.map((navItem) => {
+                const isActive = pathname === navItem.path || pathname.startsWith(navItem.path + '/');
+                return (
+                  <Link
+                    key={navItem.path}
+                    href={navItem.path}
+                    className={cn(
+                      buttonVariants({ variant: "ghost" }),
+                      isActive && "bg-secondary font-semibold"
+                    )}
+                  >
+                    {navItem.title}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
@@ -121,19 +128,23 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
               <SheetTitle className="text-2xl">{sitename}</SheetTitle>
             </SheetHeader>
             <div className="flex flex-col space-y-4 mt-8">
-              {navigation?.map((navItem) => (
-                <Link
-                  key={navItem.path}
-                  href={navItem.path}
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "lg" }),
-                    "text-xl h-14"
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {navItem.title}
-                </Link>
-              ))}
+              {navigation?.map((navItem) => {
+                const isActive = pathname === navItem.path || pathname.startsWith(navItem.path + '/');
+                return (
+                  <Link
+                    key={navItem.path}
+                    href={navItem.path}
+                    className={cn(
+                      buttonVariants({ variant: "ghost", size: "lg" }),
+                      "text-xl h-14",
+                      isActive && "bg-secondary font-semibold"
+                    )}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {navItem.title}
+                  </Link>
+                );
+              })}
             </div>
             <SheetFooter>
               <div className="flex justify-between items-center mt-8 w-full">
