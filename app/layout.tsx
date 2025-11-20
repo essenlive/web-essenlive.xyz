@@ -3,9 +3,21 @@ import "./globals.css";
 import { Navigation } from "@/components/navigation";
 import { ThemeProvider } from "@/components/theme-provider";
 import { getSiteStructure } from "@/lib/notion";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
+
+    {
+      process.env.NODE_ENV !== "development" && (
+        <Script
+          defer
+          src={`${process.env.NEXT_PUBLIC_ANALYTICS_SERVER_URL}/script.js`}
+          data-website-id={process.env.NEXT_PUBLIC_ANALYTICS_ID}
+          strategy="afterInteractive"
+        />
+      );
+    }
 
 export default function RootLayout({
   children,
