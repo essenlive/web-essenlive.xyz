@@ -51,6 +51,10 @@ import { Client } from '@notionhq/client'
 import fs from "fs";
 import path from 'path';
 import { createHash } from 'crypto';
+import sharp from 'sharp';
+import { intBuffer, ARGB8888 } from '@thi.ng/pixel';
+import { ditherWith, ATKINSON } from '@thi.ng/pixel-dither';
+import { asInt } from '@thi.ng/color-palettes';
 import type {
   SiteData,
   PageDefinition,
@@ -948,6 +952,109 @@ function cleanProperties(properties:any): any {
 }
 
 /**
+ * Applies Atkinson dithering with the first thi.ng color palette to an image
+ *
+ * This function processes an image buffer using the Atkinson dithering algorithm
+ * and quantizes colors to the first palette (ID 0) from @thi.ng/color-palettes.
+ *
+ * Process:
+ * 1. Read image with sharp and get raw RGBA pixel data
+ * 2. Convert RGBA to ARGB format for @thi.ng/pixel
+ * 3. Create IntBuffer and apply Atkinson dithering
+ * 4. Quantize to the first palette colors
+ * 5. Convert back to RGBA and save with sharp
+ *
+ * @param {string} inputPath - Path to the source image file
+ * @param {string} outputPath - Path to save the dithered image
+ * @returns {Promise<void>}
+ */
+async function applyDithering(inputPath: string, outputPath: string): Promise<void> {
+  // Get the first palette (ID 0) as packed ARGB integers
+  const palette = asInt(0);
+
+  // Load image with sharp and get raw pixel data
+  const image = sharp(inputPath);
+  const metadata = await image.metadata();
+  const { width = 0, height = 0 } = metadata;
+
+  if (width === 0 || height === 0) {
+    throw new Error('Invalid image dimensions');
+  }
+
+  // Get raw RGBA pixel data
+  const rawBuffer = await image.raw().ensureAlpha().toBuffer();
+
+  // Convert RGBA to ARGB format (swap R and B, move A to front)
+  const argbData = new Uint32Array(width * height);
+  for (let i = 0; i < width * height; i++) {
+    const r = rawBuffer[i * 4];
+    const g = rawBuffer[i * 4 + 1];
+    const b = rawBuffer[i * 4 + 2];
+    const a = rawBuffer[i * 4 + 3];
+    // ARGB format: 0xAARRGGBB
+    argbData[i] = ((a << 24) | (r << 16) | (g << 8) | b) >>> 0;
+  }
+
+  // Create IntBuffer with ARGB8888 format
+  const buf = intBuffer(width, height, ARGB8888, argbData);
+
+  // Apply Atkinson dithering
+  ditherWith(ATKINSON, buf, {});
+
+  // Quantize colors to palette - find nearest palette color for each pixel
+  const quantizedData = new Uint32Array(width * height);
+  for (let i = 0; i < buf.data.length; i++) {
+    const pixel = buf.data[i];
+    const pr = (pixel >> 16) & 0xff;
+    const pg = (pixel >> 8) & 0xff;
+    const pb = pixel & 0xff;
+
+    // Find nearest color in palette
+    let minDist = Infinity;
+    let nearestColor = palette[0];
+
+    for (const paletteColor of palette) {
+      const cr = (paletteColor >> 16) & 0xff;
+      const cg = (paletteColor >> 8) & 0xff;
+      const cb = paletteColor & 0xff;
+
+      // Simple Euclidean distance in RGB space
+      const dist = Math.sqrt(
+        Math.pow(pr - cr, 2) +
+        Math.pow(pg - cg, 2) +
+        Math.pow(pb - cb, 2)
+      );
+
+      if (dist < minDist) {
+        minDist = dist;
+        nearestColor = paletteColor;
+      }
+    }
+
+    quantizedData[i] = nearestColor;
+  }
+
+  // Convert ARGB back to RGBA for sharp
+  const rgbaBuffer = Buffer.alloc(width * height * 4);
+  for (let i = 0; i < width * height; i++) {
+    const argb = quantizedData[i];
+    rgbaBuffer[i * 4] = (argb >> 16) & 0xff;     // R
+    rgbaBuffer[i * 4 + 1] = (argb >> 8) & 0xff;  // G
+    rgbaBuffer[i * 4 + 2] = argb & 0xff;         // B
+    rgbaBuffer[i * 4 + 3] = (argb >> 24) & 0xff; // A
+  }
+
+  // Save with sharp
+  await sharp(rgbaBuffer, {
+    raw: {
+      width,
+      height,
+      channels: 4
+    }
+  }).png().toFile(outputPath);
+}
+
+/**
  * Downloads and caches images from Notion to the local filesystem
  *
  * This function handles image persistence for Notion-hosted images which have
@@ -980,13 +1087,11 @@ function cleanProperties(properties:any): any {
  */
 async function downloadImage(url: string): Promise<string> {
   try {
-    // Extract file extension from URL (before query params)
-    const urlWithoutParams = url.split('?')[0];
-    const extension = path.extname(urlWithoutParams) || '.jpg';
-
     // Create deterministic filename based on URL hash (without query params to handle time-limited tokens)
+    const urlWithoutParams = url.split('?')[0];
     const hash = createHash('md5').update(urlWithoutParams).digest('hex');
-    const filename = `${hash}${extension}`;
+    // Always use .png for dithered output (lossless format preserves dithering quality)
+    const filename = `${hash}.png`;
 
     // Create absolute path to public/images directory
     const publicImagesDir = path.join(process.cwd(), 'public', 'images');
@@ -1019,9 +1124,20 @@ async function downloadImage(url: string): Promise<string> {
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // Write file synchronously to ensure it completes
-    fs.writeFileSync(filepath, buffer);
-    console.log(`✅ Downloaded image: ${filename}`);
+    // Write original image to a temp file for processing
+    const tempFilepath = path.join(publicImagesDir, `temp_${hash}`);
+    fs.writeFileSync(tempFilepath, buffer);
+
+    // Apply Atkinson dithering with the first thi.ng palette
+    try {
+      await applyDithering(tempFilepath, filepath);
+      console.log(`✅ Downloaded and dithered image: ${filename}`);
+    } finally {
+      // Clean up temp file
+      if (fs.existsSync(tempFilepath)) {
+        fs.unlinkSync(tempFilepath);
+      }
+    }
 
     // Return the public URL path
     return fileURL;
