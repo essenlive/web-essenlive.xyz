@@ -4,18 +4,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { getSiteStructure } from "@/lib/notion";
 import Script from "next/script";
 
-
-    {
-      process.env.NODE_ENV !== "development" && (
-        <Script
-          defer
-          src={`${process.env.NEXT_PUBLIC_ANALYTICS_SERVER_URL}/script.js`}
-          data-website-id={process.env.NEXT_PUBLIC_ANALYTICS_ID}
-          strategy="afterInteractive"
-        />
-      );
-    }
-
 export default function RootLayout({
   children,
 }: {
@@ -32,6 +20,18 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className="font-sans antialiased min-h-screen">
+
+    {
+      process.env.NODE_ENV !== "development" && (
+        <Script
+          defer
+          src={`${process.env.NEXT_PUBLIC_ANALYTICS_SERVER_URL}/script.js`}
+          data-website-id={process.env.NEXT_PUBLIC_ANALYTICS_ID}
+          strategy="afterInteractive"
+        />
+      )
+    }
+
         <ThemeProvider
           attribute="class"
           defaultTheme="light"
