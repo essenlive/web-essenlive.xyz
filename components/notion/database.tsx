@@ -14,34 +14,35 @@ export function Database({ page, items, header }: DatabaseProps) {
   const displayType = page.displayType || "grid";
 
   return (
-        <article className="mt-4">
-          {header && (
-            <header className="pb-0 space-y-4">
-              {/* Cover Image */}
-              {page.cover && (
-                <div className="relative h-[50vh] rounded-lg overflow-hidden border">
-                  <Image
-                    src={page.cover}
-                    alt={page.title}
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-              )}
-
-
-              {/* Title */}
-              <div className="text-left space-y-2 top-0 bg-background z-10">
-                <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-                  {page.icon && (
-                    <span className="text-3xl md:text-4xl">{page.icon}</span>
-                  )}
-                  {page.title}
-                </h2>
-              </div>
-            </header>
+    <article className="mt-4">
+      {header && (
+        <header className="pb-0 space-y-4">
+          {/* Cover Image */}
+          {page.cover && (
+            <div className="relative h-[50vh] rounded-lg overflow-hidden border">
+              <Image
+                src={page.cover.url}
+                placeholder="blur"
+                blurDataURL={page.cover.blurDataURL}
+                alt={page.title}
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
           )}
+
+          {/* Title */}
+          <div className="text-left space-y-2 top-0 bg-background z-10">
+            <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+              {page.icon && (
+                <span className="text-3xl md:text-4xl">{page.icon}</span>
+              )}
+              {page.title}
+            </h2>
+          </div>
+        </header>
+      )}
 
       {/* Grid View */}
       {displayType === "grid" && (

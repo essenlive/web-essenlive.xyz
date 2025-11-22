@@ -92,20 +92,3 @@ export function normalizeSiteStructureUUIDs<T extends Record<string, { id: strin
 
   return normalizedStructure;
 }
-
-/**
- * Generates a simple blur data URL for Next.js Image placeholder
- * Creates a 10x10 pixel gray placeholder as a base64-encoded data URI
- * @returns A base64-encoded data URI for use with Next.js Image blurDataURL
- */
-export function generateBlurDataURL(): string {
-  // Simple 10x10 gray SVG for blur placeholder
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
-      <rect width="10" height="10" fill="#cccccc"/>
-    </svg>
-  `;
-
-  const base64 = Buffer.from(svg).toString('base64');
-  return `data:image/svg+xml;base64,${base64}`;
-}

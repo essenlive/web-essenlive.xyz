@@ -1,11 +1,12 @@
-import type { NextConfig } from "next";
 import withBundleAnalyzer from '@next/bundle-analyzer';
+import withPlaiceholder from '@plaiceholder/next';
 
 const bundleAnalyzer = withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 });
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'], // Use modern image formats
     remotePatterns: [
@@ -61,6 +62,8 @@ const nextConfig: NextConfig = {
   },
   // Enable compression
   compress: true,
+  // Empty turbopack config to silence warning
+  turbopack: {},
 };
 
-export default bundleAnalyzer(nextConfig);
+export default withPlaiceholder(bundleAnalyzer(nextConfig));

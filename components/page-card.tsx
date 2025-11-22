@@ -15,10 +15,10 @@ export function PageCard({ page }: PageCardProps) {
       {page.cover && (
         <div className="relative min-h-36 grow overflow-hidden">
           <Image
-            src={page.cover}
-            alt={page.title}
+            src={page.cover.url}
             placeholder="blur"
-            blurDataURL={page.blurDataURL}
+            blurDataURL={page.cover.blurDataURL}
+            alt={page.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"

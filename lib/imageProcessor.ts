@@ -32,6 +32,7 @@ import { createHash } from 'crypto';
 import sharp from 'sharp';
 import { intBuffer, ARGB8888 } from '@thi.ng/pixel';
 import { ditherWith, ATKINSON } from '@thi.ng/pixel-dither';
+import { getImagePlaceholder } from "@/lib/plaiceholder";
 
 /**
  * Extracts a dynamic color palette from an image using k-means clustering
@@ -285,7 +286,7 @@ async function applyDithering(inputPath: string, outputPath: string): Promise<vo
  * // Returns: "/images/abc123def456.webp"
  * // File saved to: public/images/abc123def456.webp
  */
-export async function downloadImage(url: string): Promise<string> {
+export async function downloadImage(url: string): Promise<{url: string, blurDataURL?: string}> {
   try {
     // Check if dithering is enabled via environment variable
     const shouldDither = process.env.DITHER_IMAGES === 'true';
@@ -309,7 +310,10 @@ export async function downloadImage(url: string): Promise<string> {
     // Check if file already exists
     if (fs.existsSync(filepath)) {
       // console.log(`♻️  Using cached image: ${filename}`);
-      return fileURL;
+      return {
+        url: fileURL,
+        blurDataURL: await getImagePlaceholder(filepath),
+      };
     }
 
     // Fetch the image
@@ -359,10 +363,15 @@ export async function downloadImage(url: string): Promise<string> {
     }
 
     // Return the public URL path
-    return fileURL;
+    return {
+      url: fileURL,
+      blurDataURL: await getImagePlaceholder(filepath)
+    };
   } catch (error) {
     console.error(`❌ Error downloading image from ${url}:`, error);
     // Return the original URL as fallback
-    return url;
+    return {
+      url,
+    };
   }
 }

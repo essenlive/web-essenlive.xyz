@@ -14,7 +14,9 @@ export function PageListItem({ page }: PageListItemProps) {
       {page.cover && (
         <div className="relative w-32 h-24 shrink-0 overflow-hidden rounded-md">
           <Image
-            src={page.cover}
+            src={page.cover.url}
+            placeholder={page.cover.blurDataURL ? "blur" : undefined}
+            blurDataURL={page.cover.blurDataURL}
             alt={page.title}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"

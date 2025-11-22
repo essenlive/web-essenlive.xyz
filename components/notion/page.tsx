@@ -36,10 +36,10 @@ export function Page({ page, blocks, header }: PageProps) {
           {page.cover && (
             <div className="relative h-[50vh] rounded-lg overflow-hidden border">
               <Image
-                src={page.cover}
+                src={page.cover.url}
                 alt={page.title}
                 placeholder="blur"
-                blurDataURL={page.blurDataURL}
+                blurDataURL={page.cover.blurDataURL}
                 fill
                 className="object-cover"
                 priority

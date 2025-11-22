@@ -52,7 +52,7 @@
 import { Client } from '@notionhq/client'
 import { cache } from 'react'
 import { downloadImage } from './imageProcessor'
-import { normalizeSiteStructureUUIDs, generateBlurDataURL } from './utils'
+import { normalizeSiteStructureUUIDs } from './utils'
 import type {
   SiteData,
   PageDefinition,
@@ -63,6 +63,7 @@ import type {
   DatabaseObjectResponse,
   BlockWithChildren,
 } from "./types";
+
 
 export type { PageData } from "./types";
 
@@ -465,13 +466,21 @@ export const getPageContentWithChildren = cache(
 
             if (block.image) {
               if (block.image.type === "external") {
-                block.image.external.url = await downloadImage(
+                const downloadedExternal = await downloadImage(
                   block.image.external.url
                 );
+                block.image.external = {
+                  ...downloadedExternal,
+                  url: downloadedExternal.url
+                };
               } else if (block.image.type === "file") {
-                block.image.file.url = await downloadImage(
+                const downloadedFile = await downloadImage(
                   block.image.file.url
                 );
+                block.image.file = {
+                  url: downloadedFile.url,
+                  expiry_time: block.image.file.expiry_time
+                };
               }
             }
 
@@ -637,20 +646,16 @@ async function cleanData(
         icon = data.icon.file.url;
       }
     }
-
-  let cover = "";
-  let blurDataURL = "";
+  let cover;
   if (data?.cover) {
+    cover = {url: ""};
     if (data.cover.type === "external") {
       cover = await downloadImage(data.cover.external.url);
     } else if (data.cover.type === "file") {
       // console.log(`📥 Downloading cover image from Notion...`);
       cover = await downloadImage(data.cover.file.url);
     }
-    // Generate blur data URL if we have a cover
-    if (cover) {
-      blurDataURL = generateBlurDataURL();
-    }
+
   }
 
   const encoded =
@@ -668,7 +673,6 @@ async function cleanData(
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, ""),
     cover,
-    blurDataURL,
     properties,
     created_time: data.created_time,
     url: data.url,
@@ -687,7 +691,7 @@ async function cleanData(
       twitter: {
         card: "summary_large_image",
         title: title,
-        images: cover ? [cover] : [],
+        images: cover?.url ? [cover.url] : [],
       },
     },
   };

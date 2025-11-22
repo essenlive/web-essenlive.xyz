@@ -37,8 +37,10 @@ export interface CleanData {
   url: string;
   slug: string;
   created_time: string;
-  cover?: string;
-  blurDataURL?: string;
+  cover?: {
+    url : string;
+    blurDataURL?: string;
+  }
   properties?: CleanPageProperties;
   metadata: Metadata;
 }
