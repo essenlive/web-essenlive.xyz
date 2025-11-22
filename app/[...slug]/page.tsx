@@ -61,13 +61,15 @@ export default async function DynamicPage({ params }: DynamicPageProps) {
   // Handle database list view (/category)
   if (pageData.type === "database") {
     const items = await getDatabaseItems(pageData);
-    return <Database page={pageData} items={items || []} header={true} />;
+    return (
+      <Database page={pageData} items={items || []} header={slug.length > 1} />
+    );
   }
-
+  
   // Handle single page view (/page-slug)
   else if ( pageData.type === "page") {
     const blocks = await getPageContentWithChildren(pageData);
-    return <Page page={pageData} blocks={blocks || []} header={true} />;
+    return <Page page={pageData} blocks={blocks || []} header={slug.length > 1} />;
   }
 
   // Handle error pages

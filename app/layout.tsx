@@ -21,16 +21,14 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className="font-sans antialiased min-h-screen">
 
-    {
-      process.env.NODE_ENV !== "development" && (
-        <Script
-          defer
-          src={`${process.env.NEXT_PUBLIC_ANALYTICS_SERVER_URL}/script.js`}
-          data-website-id={process.env.NEXT_PUBLIC_ANALYTICS_ID}
-          strategy="afterInteractive"
-        />
-      )
-    }
+        {process.env.NODE_ENV !== "development" && (
+          <Script
+            defer
+            src={`${process.env.NEXT_PUBLIC_ANALYTICS_SERVER_URL}/script.js`}
+            data-website-id={process.env.NEXT_PUBLIC_ANALYTICS_ID}
+            strategy="afterInteractive"
+          />
+        )}
 
         <ThemeProvider
           attribute="class"

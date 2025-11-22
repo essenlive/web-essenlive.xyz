@@ -38,6 +38,8 @@ export function Page({ page, blocks, header }: PageProps) {
               <Image
                 src={page.cover}
                 alt={page.title}
+                placeholder="blur"
+                blurDataURL={page.blurDataURL}
                 fill
                 className="object-cover"
                 priority

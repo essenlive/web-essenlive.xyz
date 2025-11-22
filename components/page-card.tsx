@@ -17,6 +17,8 @@ export function PageCard({ page }: PageCardProps) {
           <Image
             src={page.cover}
             alt={page.title}
+            placeholder="blur"
+            blurDataURL={page.blurDataURL}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"

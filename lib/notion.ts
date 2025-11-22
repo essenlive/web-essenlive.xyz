@@ -52,7 +52,7 @@
 import { Client } from '@notionhq/client'
 import { cache } from 'react'
 import { downloadImage } from './imageProcessor'
-import { normalizeSiteStructureUUIDs } from './utils'
+import { normalizeSiteStructureUUIDs, generateBlurDataURL } from './utils'
 import type {
   SiteData,
   PageDefinition,
@@ -349,9 +349,9 @@ export const getPageByPath = cache(
 export const getDatabaseItems = async (
   databaseDefinition: PageDefinition
 ): Promise<PageData[]> => {
-  console.log(
-    `🔍 Grabbing items from database : ${databaseDefinition.path} with filter : ${JSON.stringify(databaseDefinition.filter)}`
-  );
+  // console.log(
+  //   `🔍 Grabbing items from database : ${databaseDefinition.path} with filter : ${JSON.stringify(databaseDefinition.filter)}`
+  // );
 
   try {
     const response = await notion.databases.query({
@@ -639,6 +639,7 @@ async function cleanData(
     }
 
   let cover = "";
+  let blurDataURL = "";
   if (data?.cover) {
     if (data.cover.type === "external") {
       cover = await downloadImage(data.cover.external.url);
@@ -646,8 +647,12 @@ async function cleanData(
       // console.log(`📥 Downloading cover image from Notion...`);
       cover = await downloadImage(data.cover.file.url);
     }
+    // Generate blur data URL if we have a cover
+    if (cover) {
+      blurDataURL = generateBlurDataURL();
+    }
   }
-  
+
   const encoded =
     encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-size="64">
@@ -663,6 +668,7 @@ async function cleanData(
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, ""),
     cover,
+    blurDataURL,
     properties,
     created_time: data.created_time,
     url: data.url,

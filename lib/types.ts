@@ -38,6 +38,7 @@ export interface CleanData {
   slug: string;
   created_time: string;
   cover?: string;
+  blurDataURL?: string;
   properties?: CleanPageProperties;
   metadata: Metadata;
 }
