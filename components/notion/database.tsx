@@ -1,4 +1,5 @@
 import { PageCard } from "@/components/page-card";
+import { PageListItem } from "@/components/page-list-item";
 import type { PageData } from "@/lib/types";
 import Image from "next/image";
 
@@ -10,6 +11,7 @@ interface DatabaseProps {
 }
 
 export function Database({ page, items, header }: DatabaseProps) {
+  const displayType = page.displayType || "grid";
 
   return (
         <article className="mt-4">
@@ -27,8 +29,8 @@ export function Database({ page, items, header }: DatabaseProps) {
                   />
                 </div>
               )}
-    
-    
+
+
               {/* Title */}
               <div className="text-left space-y-2 top-0 bg-background z-10">
                 <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
@@ -41,13 +43,23 @@ export function Database({ page, items, header }: DatabaseProps) {
             </header>
           )}
 
-      {/* Grid - Client Component */}
+      {/* Grid View */}
+      {displayType === "grid" && (
+        <div className="my-7 w-full grid gap-7 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+          {items.map((item) => (
+            <PageCard key={item.id} page={item} />
+          ))}
+        </div>
+      )}
 
-      <div className="my-7 w-full grid gap-7 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-        {items.map((item) => (
-          <PageCard key={item.id} page={item} />
-        ))}
-      </div>
+      {/* List View */}
+      {displayType === "list" && (
+        <div className="my-7 w-full flex flex-col gap-4">
+          {items.map((item) => (
+            <PageListItem key={item.id} page={item} />
+          ))}
+        </div>
+      )}
     </article>
   );
 }

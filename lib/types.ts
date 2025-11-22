@@ -27,6 +27,8 @@ export type PageDefinition = {
   sorts?: any;
   cardProperties?: string[];
   pageProperties?: string[];
+  displayType?: "grid" | "list";
+  disableItemLinks?: boolean;
 };
 
 export interface CleanData {

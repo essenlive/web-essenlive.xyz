@@ -200,6 +200,7 @@ export const getDefinedData = cache(async (): Promise<PageData[]> => {
           path: p.path,
           filter: p.filter,
           sorts: p.sorts,
+          displayType: p.displayType,
           cardProperties: p.cardProperties,
           pageProperties: p.pageProperties,
           ...(await cleanData(p)),
