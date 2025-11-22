@@ -33,7 +33,9 @@
  *    - cleanData: Transforms raw Notion API responses into simplified format
  *    - cleanProperties: Normalizes property types (title, rich_text, dates, etc.)
  *    - blocksToMarkdown/blockToMarkdown: Converts Notion blocks to Markdown
- *    - downloadImage: Downloads and caches Notion images locally
+ *
+ * 5. Image Processing:
+ *    - See lib/imageProcessor.ts for image downloading, dithering, and WebP conversion
  *
  * Caching Strategy:
  * All data fetching functions use React's `cache()` wrapper for automatic request
@@ -48,9 +50,9 @@
  */
 
 import { Client } from '@notionhq/client'
-import fs from "fs";
-import path from 'path';
-import { createHash } from 'crypto';
+import { cache } from 'react'
+import { downloadImage } from './imageProcessor'
+import { normalizeSiteStructureUUIDs } from './utils'
 import type {
   SiteData,
   PageDefinition,
@@ -63,8 +65,6 @@ import type {
 } from "./types";
 
 export type { PageData } from "./types";
-import { cache } from 'react'
-import { normalizeSiteStructureUUIDs } from './utils'
 
 /**
  * Notion API Client Instance
@@ -946,89 +946,3 @@ function cleanProperties(properties:any): any {
   }
   return properties
 }
-
-/**
- * Downloads and caches images from Notion to the local filesystem
- *
- * This function handles image persistence for Notion-hosted images which have
- * time-limited expiring URLs. Images are downloaded to public/images/ and
- * identified by MD5 hash of the URL (excluding query params).
- *
- * Features:
- * - Automatic caching: Skips download if file already exists
- * - Deterministic naming: Same source URL always maps to same filename
- * - Time-token resilience: Ignores query params when hashing
- * - Automatic directory creation
- * - Fallback to original URL on error
- *
- * Process:
- * 1. Extracts file extension from URL
- * 2. Generates MD5 hash from URL (without query params)
- * 3. Checks if cached version exists
- * 4. Downloads if needed and saves to public/images/
- * 5. Returns public URL path (/images/filename)
- *
- * @param {string} url - The Notion image URL to download
- * @returns {Promise<string>} Local public URL path or original URL on failure
- *
- * @internal This is a private utility function
- *
- * @example
- * const localUrl = await downloadImage("https://notion.so/image.jpg?expires=123");
- * // Returns: "/images/abc123def456.jpg"
- * // File saved to: public/images/abc123def456.jpg
- */
-async function downloadImage(url: string): Promise<string> {
-  try {
-    // Extract file extension from URL (before query params)
-    const urlWithoutParams = url.split('?')[0];
-    const extension = path.extname(urlWithoutParams) || '.jpg';
-
-    // Create deterministic filename based on URL hash (without query params to handle time-limited tokens)
-    const hash = createHash('md5').update(urlWithoutParams).digest('hex');
-    const filename = `${hash}${extension}`;
-
-    // Create absolute path to public/images directory
-    const publicImagesDir = path.join(process.cwd(), 'public', 'images');
-    const filepath = path.join(publicImagesDir, filename);
-    const fileURL = `/images/${filename}`;
-
-    // Ensure directory exists
-    if (!fs.existsSync(publicImagesDir)) {
-      fs.mkdirSync(publicImagesDir, { recursive: true });
-    }
-
-    // Check if file already exists
-    if (fs.existsSync(filepath)) {
-      // console.log(`♻️  Using cached image: ${filename}`);
-      return fileURL;
-    }
-
-    // Fetch the image
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      throw new Error(`Failed to download image: ${response.statusText}`);
-    }
-
-    if (!response.body) {
-      throw new Error(`Failed to download image from ${url}: response body is null`);
-    }
-
-    // Convert Web ReadableStream to Node.js Buffer
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    // Write file synchronously to ensure it completes
-    fs.writeFileSync(filepath, buffer);
-    console.log(`✅ Downloaded image: ${filename}`);
-
-    // Return the public URL path
-    return fileURL;
-  } catch (error) {
-    console.error(`❌ Error downloading image from ${url}:`, error);
-    // Return the original URL as fallback
-    return url;
-  }
-}
-
