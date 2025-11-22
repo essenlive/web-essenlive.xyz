@@ -46,6 +46,9 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   experimental: {
+    // Limit build workers to prevent SIGBUS errors in WSL2
+    workerThreads: false,
+    cpus: 1,
     // Optimize package imports for better tree-shaking
     optimizePackageImports: [
       'lucide-react',
