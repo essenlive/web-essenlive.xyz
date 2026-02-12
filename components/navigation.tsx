@@ -101,7 +101,7 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
           )}
           {socials?.mail && (
             <Link
-              href={socials?.mail}
+              href={`mailto:${socials?.mail}`}
               target="_blank"
               rel="noopener noreferrer"
               className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
