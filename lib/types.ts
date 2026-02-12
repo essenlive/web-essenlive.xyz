@@ -27,7 +27,7 @@ export type PageDefinition = {
   sorts?: any;
   cardProperties?: string[];
   pageProperties?: string[];
-  displayType?: "grid" | "list";
+  displayType?: "grid" | "list" | "list-compact";
   disableItemLinks?: boolean;
 };
 

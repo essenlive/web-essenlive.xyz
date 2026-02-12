@@ -153,7 +153,8 @@ const PropertyDisplay = ({ propKey, propValue }: PropertyDisplayProps) => {
       if (propValue.value && propValue.value.length > 0) {
         return (
           <p className="text-sm text-muted-foreground line-clamp-2">
-            {JSON.stringify(propValue.value)}
+            {/* {JSON.stringify(propValue.value)} */}
+            {propValue.value}
           </p>
         );
       }

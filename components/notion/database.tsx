@@ -61,6 +61,15 @@ export function Database({ page, items, header }: DatabaseProps) {
           ))}
         </div>
       )}
+
+      {/* Compact list View */}
+      {displayType === "list-compact" && (
+        <div className="my-7 w-full flex flex-col gap-4">
+          {items.map((item) => (
+            <PageListItem variant="compact" key={item.id} page={item} />
+          ))}
+        </div>
+      )}
     </article>
   );
 }
