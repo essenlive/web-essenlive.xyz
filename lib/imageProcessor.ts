@@ -30,8 +30,6 @@ import fs from "fs";
 import path from 'path';
 import { createHash } from 'crypto';
 import sharp from 'sharp';
-import { intBuffer, ARGB8888 } from '@thi.ng/pixel';
-import { ditherWith, ATKINSON } from '@thi.ng/pixel-dither';
 import { getImagePlaceholder } from "@/lib/plaiceholder";
 
 /**
@@ -133,10 +131,8 @@ function extractPaletteFromImage(
  * 1. Resize image to max width of 840px (maintaining aspect ratio)
  * 2. Read image with sharp and get raw RGBA pixel data
  * 3. Extract dominant colors from the image to create a custom palette
- * 4. Convert RGBA to ARGB format for @thi.ng/pixel
- * 5. Create IntBuffer and apply Atkinson dithering
- * 6. Quantize to the dynamic palette colors
- * 7. Convert back to RGBA and save as lossless WebP
+ * 4. Atkinson error diffusion directly against that palette (nearest color per pixel)
+ * 5. Save as lossless WebP
  *
  * @param {string} inputPath - Path to the source image file
  * @param {string} outputPath - Path to save the dithered image (should end in .webp)
@@ -180,64 +176,40 @@ async function applyDithering(inputPath: string, outputPath: string): Promise<vo
   // Extract dynamic palette from the image
   const palette = extractPaletteFromImage(rawBuffer, width, height, 16);
 
-  // Convert RGBA to ARGB format (swap R and B, move A to front)
-  const argbData = new Uint32Array(width * height);
-  for (let i = 0; i < width * height; i++) {
-    const r = rawBuffer[i * 4];
-    const g = rawBuffer[i * 4 + 1];
-    const b = rawBuffer[i * 4 + 2];
-    const a = rawBuffer[i * 4 + 3];
-    // ARGB format: 0xAARRGGBB
-    argbData[i] = ((a << 24) | (r << 16) | (g << 8) | b) >>> 0;
-  }
+  // Atkinson error diffusion against the extracted palette itself
+  // (diffusing against any other palette gives noise and muddy colors)
+  const pal = palette.map(c => [(c >> 16) & 0xff, (c >> 8) & 0xff, c & 0xff]);
+  const work = Float32Array.from(rawBuffer); // RGBA, error accumulates in RGB
+  const rgbaBuffer = Buffer.alloc(width * height * 4);
+  const spread = [[1, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [0, 2]]; // each gets 1/8
 
-  // Create IntBuffer with ARGB8888 format
-  const buf = intBuffer(width, height, ARGB8888, argbData);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const i = (y * width + x) * 4;
+      const r = Math.min(255, Math.max(0, work[i]));
+      const g = Math.min(255, Math.max(0, work[i + 1]));
+      const b = Math.min(255, Math.max(0, work[i + 2]));
 
-  // Apply Atkinson dithering
-  ditherWith(ATKINSON, buf, {});
+      let best = pal[0];
+      let minDist = Infinity;
+      for (const c of pal) {
+        const d = (r - c[0]) ** 2 + (g - c[1]) ** 2 + (b - c[2]) ** 2;
+        if (d < minDist) { minDist = d; best = c; }
+      }
 
-  // Quantize colors to palette - find nearest palette color for each pixel
-  const quantizedData = new Uint32Array(width * height);
-  for (let i = 0; i < buf.data.length; i++) {
-    const pixel = buf.data[i];
-    const pr = (pixel >> 16) & 0xff;
-    const pg = (pixel >> 8) & 0xff;
-    const pb = pixel & 0xff;
+      rgbaBuffer[i] = best[0];
+      rgbaBuffer[i + 1] = best[1];
+      rgbaBuffer[i + 2] = best[2];
+      rgbaBuffer[i + 3] = rawBuffer[i + 3];
 
-    // Find nearest color in palette
-    let minDist = Infinity;
-    let nearestColor = palette[0];
-
-    for (const paletteColor of palette) {
-      const cr = (paletteColor >> 16) & 0xff;
-      const cg = (paletteColor >> 8) & 0xff;
-      const cb = paletteColor & 0xff;
-
-      // Simple Euclidean distance in RGB space
-      const dist = Math.sqrt(
-        Math.pow(pr - cr, 2) +
-        Math.pow(pg - cg, 2) +
-        Math.pow(pb - cb, 2)
-      );
-
-      if (dist < minDist) {
-        minDist = dist;
-        nearestColor = paletteColor;
+      const er = (r - best[0]) / 8, eg = (g - best[1]) / 8, eb = (b - best[2]) / 8;
+      for (const [dx, dy] of spread) {
+        const nx = x + dx, ny = y + dy;
+        if (nx < 0 || nx >= width || ny >= height) continue;
+        const j = (ny * width + nx) * 4;
+        work[j] += er; work[j + 1] += eg; work[j + 2] += eb;
       }
     }
-
-    quantizedData[i] = nearestColor;
-  }
-
-  // Convert ARGB back to RGBA for sharp
-  const rgbaBuffer = Buffer.alloc(width * height * 4);
-  for (let i = 0; i < width * height; i++) {
-    const argb = quantizedData[i];
-    rgbaBuffer[i * 4] = (argb >> 16) & 0xff;     // R
-    rgbaBuffer[i * 4 + 1] = (argb >> 8) & 0xff;  // G
-    rgbaBuffer[i * 4 + 2] = argb & 0xff;         // B
-    rgbaBuffer[i * 4 + 3] = (argb >> 24) & 0xff; // A
   }
 
   // Save as lossless WebP
