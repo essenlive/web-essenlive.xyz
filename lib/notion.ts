@@ -987,7 +987,7 @@ function cleanProperties(properties:any): any {
         break;
       case "select":
       case "status":
-        value = { name: value.name, color: value.color };
+        value = value ? { name: value.name, color: value.color } : null;
         properties[prop] = {
           type,
           value,
