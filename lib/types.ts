@@ -23,6 +23,8 @@ export type PageDefinition = {
   type: "page" | "database";
   id: string;
   path: "/" | string;
+  /** Navigation label; falls back to the path without its slash. */
+  label?: string;
   filter?: any;
   sorts?: any;
   cardProperties?: string[];
@@ -54,6 +56,8 @@ export interface CleanData {
   cover?: {
     url : string;
     blurDataURL?: string;
+    width?: number;
+    height?: number;
   }
   properties?: CleanPageProperties;
   metadata: Metadata;

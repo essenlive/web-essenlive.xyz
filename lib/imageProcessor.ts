@@ -265,7 +265,12 @@ async function applyDithering(inputPath: string, outputPath: string): Promise<vo
  * // Returns: "/images/abc123def456.webp"
  * // File saved to: public/images/abc123def456.webp
  */
-type DownloadedImage = { url: string; blurDataURL?: string };
+type DownloadedImage = { url: string; blurDataURL?: string; width?: number; height?: number };
+
+async function describeImage(url: string, filepath: string): Promise<DownloadedImage> {
+  const { width, height } = await sharp(filepath).metadata();
+  return { url, blurDataURL: await getImagePlaceholder(filepath), width, height };
+}
 const inFlight = new Map<string, Promise<DownloadedImage>>();
 
 // Pages sharing an image (e.g. a default cover) would race on the same temp file
@@ -303,10 +308,7 @@ async function downloadImageOnce(url: string): Promise<DownloadedImage> {
     // Check if file already exists
     if (fs.existsSync(filepath)) {
       // console.log(`♻️  Using cached image: ${filename}`);
-      return {
-        url: fileURL,
-        blurDataURL: await getImagePlaceholder(filepath),
-      };
+      return describeImage(fileURL, filepath);
     }
 
     // Fetch the image
@@ -356,10 +358,7 @@ async function downloadImageOnce(url: string): Promise<DownloadedImage> {
     }
 
     // Return the public URL path
-    return {
-      url: fileURL,
-      blurDataURL: await getImagePlaceholder(filepath)
-    };
+    return describeImage(fileURL, filepath);
   } catch (error) {
     console.error(`❌ Error downloading image from ${url}:`, error);
     // Return the original URL as fallback

@@ -1,30 +1,41 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Video, Music, File } from 'lucide-react'
+
+function blockUrl(block: any): string {
+  if (block.type === 'file' && block.file) return block.file.url
+  if (block.type === 'external' && block.external) return block.external.url
+  return ''
+}
+
+/** Low-tech: a ruled line with a mono kind, a name and a plain link. */
+function LinkRow({ kind, name, url, action }: { kind: string; name: string; url: string; action: string }) {
+  return (
+    <p className="my-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-y border-border py-3">
+      <span className="font-mono text-xs text-muted-foreground">{kind}</span>
+      <span className="font-bold">{name}</span>
+      {url && (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="underline decoration-1">
+          {action}
+        </a>
+      )}
+    </p>
+  )
+}
 
 export function ImageBlock({ block }: { block: any }) {
-  let imageUrl = ''
   let caption = ''
-  
-  if (block.type === 'file' && block.file) {
-    imageUrl = block.file.url
-  } else if (block.type === 'external' && block.external) {
-    imageUrl = block.external.url
-  }
-  
+  const imageUrl = blockUrl(block)
+
   if (block.caption && block.caption.length > 0) {
     caption = block.caption.map((text: any) => text.plain_text).join('')
   }
-  
+
   if (!imageUrl) return null
-  
+
   return (
-    <div className="my-8">
-      <div className="relative rounded-lg overflow-hidden border">
+    <figure className="my-8">
+      <div className="relative overflow-hidden border border-foreground bg-muted">
         <Image
           src={imageUrl}
           alt={caption || 'Image'}
@@ -35,105 +46,22 @@ export function ImageBlock({ block }: { block: any }) {
         />
       </div>
       {caption && (
-        <p className="text-center text-sm text-muted-foreground mt-3 italic">
+        <figcaption className="mt-2 font-mono text-xs text-muted-foreground">
           {caption}
-        </p>
+        </figcaption>
       )}
-    </div>
+    </figure>
   )
 }
 
 export function VideoBlock({ block }: { block: any }) {
-  let videoUrl = ''
-  
-  if (block.type === 'file' && block.file) {
-    videoUrl = block.file.url
-  } else if (block.type === 'external' && block.external) {
-    videoUrl = block.external.url
-  }
-  
-  return (
-    <Card className="my-6">
-      <CardContent className="p-6">
-        <div className="flex items-center space-x-4">
-          <Video className="h-6 w-6 text-primary" />
-          <div>
-            <p className="font-semibold text-base text-foreground">Video Content</p>
-            {videoUrl && (
-              <Button variant="link" asChild className="p-0 h-auto">
-                <Link href={videoUrl} target="_blank">
-                  Watch Video
-                </Link>
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
+  return <LinkRow kind="vidéo" name="Vidéo" url={blockUrl(block)} action="regarder →" />
 }
 
 export function AudioBlock({ block }: { block: any }) {
-  let audioUrl = ''
-  
-  if (block.type === 'file' && block.file) {
-    audioUrl = block.file.url
-  } else if (block.type === 'external' && block.external) {
-    audioUrl = block.external.url
-  }
-  
-  return (
-    <Card className="my-6">
-      <CardContent className="p-6">
-        <div className="flex items-center space-x-4">
-          <Music className="h-6 w-6 text-primary" />
-          <div>
-            <p className="font-semibold text-base text-foreground">Audio Content</p>
-            {audioUrl && (
-              <Button variant="link" asChild className="p-0 h-auto">
-                <Link href={audioUrl} target="_blank">
-                  Play Audio
-                </Link>
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
+  return <LinkRow kind="audio" name="Audio" url={blockUrl(block)} action="écouter →" />
 }
 
 export function FileBlock({ block }: { block: any }) {
-  let fileUrl = ''
-  let fileName = 'File'
-  
-  if (block.type === 'file' && block.file) {
-    fileUrl = block.file.url
-  } else if (block.type === 'external' && block.external) {
-    fileUrl = block.external.url
-  }
-  
-  if (block.name) {
-    fileName = block.name
-  }
-  
-  return (
-    <Card className="my-6">
-      <CardContent className="p-6">
-        <div className="flex items-center space-x-4">
-          <File className="h-6 w-6 text-primary" />
-          <div>
-            <p className="font-semibold text-base text-foreground">{fileName}</p>
-            {fileUrl && (
-              <Button variant="link" asChild className="p-0 h-auto">
-                <Link href={fileUrl} target="_blank">
-                  Download
-                </Link>
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-} 
+  return <LinkRow kind="fichier" name={block.name || 'Fichier'} url={blockUrl(block)} action="télécharger →" />
+}

@@ -110,7 +110,7 @@ export function RenderProperties({
   }
 
   return (
-    <p className={cn("m-0 font-mono text-xs leading-5 text-muted-foreground", className)}>
+    <p className={cn("m-0 font-mono text-[0.8125rem] leading-5 text-muted-foreground", className)}>
       {rendered.map(({ key, node }, index) => (
         <Fragment key={key}>
           {index > 0 && " · "}

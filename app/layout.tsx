@@ -12,12 +12,12 @@ export default function RootLayout({
   const navigation = Object.values(structure)
     .filter((p) => p.path !== "/")
     .map((p) => ({
-      title: p.path.slice(1),
+      title: p.label ?? p.path.slice(1),
       path: p.path,
     }));
 
   return (
-    <html lang="fr" className="scroll-smooth">
+    <html lang="fr">
       <body className="font-sans antialiased min-h-screen">
 
         {process.env.NODE_ENV !== "development" && (
@@ -29,13 +29,19 @@ export default function RootLayout({
           />
         )}
 
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:border focus:border-foreground focus:bg-background focus:px-3 focus:py-2"
+        >
+          Aller au contenu
+        </a>
         <div className="relative flex min-h-screen flex-col bg-background text-foreground">
           <Navigation
             sitename={sitename}
             socials={socials}
             navigation={navigation}
           />
-          <main className="flex-1 w-full max-w-3xl mx-auto px-6">
+          <main id="main" className="flex-1 w-full max-w-3xl mx-auto px-6">
             {children}
           </main>
           <footer className="w-full">
