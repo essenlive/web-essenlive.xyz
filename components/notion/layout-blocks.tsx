@@ -111,17 +111,13 @@ export function ColumnBlock({
   renderChildren?: (blocks: BlockWithChildren[]) => React.ReactNode;
 }) {
   return (
-    <Card className="h-fit">
-      <CardContent className="p-4">
-        {children && children.length > 0 && renderChildren ? (
-          <div className="space-y-4">
-            {renderChildren(children)}
-          </div>
-        ) : (
-          <p className="text-muted-foreground text-sm">Empty column</p>
-        )}
-      </CardContent>
-    </Card>
+    <div className="h-fit min-w-0">
+      {children && children.length > 0 && renderChildren && (
+        <div className="space-y-4">
+          {renderChildren(children)}
+        </div>
+      )}
+    </div>
   )
 }
 

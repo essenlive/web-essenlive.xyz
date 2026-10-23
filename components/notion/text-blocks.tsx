@@ -13,7 +13,7 @@ export function ParagraphBlock({ block }: { block: any }) {
   }
   
   return (
-    <p className="text-base leading-7 text-foreground">
+    <p className="my-3 max-w-[40rem] leading-7 text-foreground">
       <RichText richText={block.rich_text} />
     </p>
   )
@@ -21,14 +21,14 @@ export function ParagraphBlock({ block }: { block: any }) {
 
 export function HeadingBlock({ level, block }: { level: 1 | 2 | 3; block: any }) {
   const className = {
-    1: 'text-3xl md:text-4xl font-bold mt-12 mb-4 tracking-tight',
-    2: 'text-2xl md:text-3xl font-bold mt-10 mb-2 tracking-tight',
-    3: 'text-xl md:text-2xl font-bold mt-8 mb-1 tracking-tight'
+    1: 'text-4xl md:text-[2.75rem] font-bold leading-[1.1] mt-10 mb-5 tracking-tight max-w-[40rem]',
+    2: 'text-lg font-bold mt-14 mb-4 pb-2 border-b border-foreground',
+    3: 'text-lg font-bold mt-8 mb-1'
   }[level]
 
   if (level === 1) {
     return (
-      <h1 className={`${className} text-foreground border-b pb-2`}>
+      <h1 className={`${className} text-foreground`}>
         <RichText richText={block.rich_text} />
       </h1>
     )

@@ -2,6 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { PageData } from "@/lib/notion"
 import { RenderProperties } from "@/components/notion/render-properties"
+import { cn } from "@/lib/utils"
 
 interface PageListItemProps {
   page: PageData;
@@ -11,79 +12,56 @@ interface PageListItemProps {
 export function PageListItem({ page, variant = "default" }: PageListItemProps) {
   const isCompact = variant === "compact";
 
-  const listContent = isCompact ? (
-    <div className="flex items-center gap-3 py-1.5 group">
+  const title = page.disableItemLinks ? (
+    <span className="font-semibold">{page.title}</span>
+  ) : (
+    <Link href={page.path} className="font-semibold underline decoration-1 hover:text-highlight">
+      {page.title}
+    </Link>
+  );
+
+  return (
+    <li
+      className={cn(
+        "flex items-center border-b border-border",
+        isCompact ? "gap-3 py-2.5" : "gap-4 py-4"
+      )}
+    >
       {page.cover && (
-        <div className="relative w-8 h-8 shrink-0 overflow-hidden rounded">
+        <div
+          className={cn(
+            "relative shrink-0 overflow-hidden border border-foreground bg-muted",
+            isCompact ? "h-8 w-8" : "h-24 w-32"
+          )}
+        >
           <Image
             src={page.cover.url}
             placeholder={page.cover.blurDataURL ? "blur" : undefined}
             blurDataURL={page.cover.blurDataURL}
-            alt={page.title}
+            alt=""
             fill
             className="object-cover"
             loading="lazy"
-            sizes="32px"
+            sizes={isCompact ? "32px" : "128px"}
           />
         </div>
       )}
-      <span className="text-sm font-medium line-clamp-1 group-hover:text-primary transition-colors">
-        {page.icon && <span className="mr-1.5">{page.icon}</span>}
-        {page.title}
-      </span>
-      {page.properties && (
-        <RenderProperties
-          properties={page.properties}
-          filterProperties={page.cardProperties}
-          className="gap-2 ml-auto shrink-0"
-          pageLayout
-        />
-      )}
-    </div>
-  ) : (
-    <div className="flex gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-all duration-300 hover:border-primary/50 group">
-      {page.cover && (
-        <div className="relative w-32 h-24 shrink-0 overflow-hidden rounded-md">
-          <Image
-            src={page.cover.url}
-            placeholder={page.cover.blurDataURL ? "blur" : undefined}
-            blurDataURL={page.cover.blurDataURL}
-            alt={page.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-            sizes="128px"
-          />
-        </div>
-      )}
-      <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <h3 className="text-lg font-semibold mb-2 line-clamp-1 group-hover:text-primary transition-colors">
-          {page.icon && <span className="mr-2">{page.icon}</span>}
-          {page.title}
-        </h3>
+      <div
+        className={cn(
+          "flex min-w-0 flex-1",
+          isCompact
+            ? "flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5"
+            : "flex-col gap-1"
+        )}
+      >
+        {title}
         {page.properties && (
           <RenderProperties
             properties={page.properties}
             filterProperties={page.cardProperties}
-            className="gap-2"
-            pageLayout
           />
         )}
       </div>
-    </div>
-  );
-
-  console.log(page.disableItemLinks);
-  
-  if (page.disableItemLinks) {
-    return <div className="block">{listContent}</div>;
-  }
-
-  return (
-    <Link href={page.path} className="block">
-      {listContent}
-    </Link>
+    </li>
   );
 }
-
-

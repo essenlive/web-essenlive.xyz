@@ -139,6 +139,22 @@ The `SITE_DATA` environment variable controls your entire site structure:
 }
 ```
 
+**Featured items under a page**: show a selection of a database (declared elsewhere in `structure`) below a page. `from` is the database path; `filter` is combined (AND) with the database's own filter.
+```json
+"/": {
+  "type": "page",
+  "id": "notion-page-id",
+  "featured": {
+    "from": "/index",
+    "title": "Sélection",
+    "filter": {"property": "Sélection", "checkbox": {"equals": true}},
+    "limit": 4
+  }
+}
+```
+
+**Display options** (on a database entry): `displayType` (`grid`, `list`, `list-compact`), `cardProperties` (properties shown in lists and cards, in order), `pageProperties` (properties shown on item pages), `disableItemLinks`.
+
 ### Supported Notion Blocks
 
 The renderer automatically supports:
@@ -266,4 +282,4 @@ MIT License - feel free to use this for your own website or portfolio!
 - [ ] Optimize static generation
 - [ ] Manage more notion blocks and properties.
 - [ ] Optimize images at downlaod
-- [ ] Build a [low tech version](https://solar.lowtechmagazine.com/2018/09/how-to-build-a-low-tech-website/)
+- [x] Build a [low tech version](https://solar.lowtechmagazine.com/2018/09/how-to-build-a-low-tech-website/)

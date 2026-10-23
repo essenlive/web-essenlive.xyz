@@ -29,6 +29,20 @@ export type PageDefinition = {
   pageProperties?: string[];
   displayType?: "grid" | "list" | "list-compact";
   disableItemLinks?: boolean;
+  featured?: FeaturedDefinition;
+};
+
+/**
+ * Items of a database (declared elsewhere in the structure) shown under a page.
+ * `from` is the structure path of that database, e.g. "/index".
+ * `filter` is combined (AND) with the database's own filter.
+ */
+export type FeaturedDefinition = {
+  from: string;
+  title?: string;
+  filter?: any;
+  sorts?: any;
+  limit?: number;
 };
 
 export interface CleanData {

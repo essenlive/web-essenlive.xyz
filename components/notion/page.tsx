@@ -1,12 +1,9 @@
 'use client'
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { NotionRenderer } from "@/components/notion-renderer";
 import type { PageData, BlockWithChildren } from "@/lib/types";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import { RenderProperties } from "@/components/notion/render-properties";
-import { Card, CardContent } from "../ui/card";
 
 
 interface PageProps {
@@ -17,28 +14,34 @@ interface PageProps {
 
 
 export function Page({ page, blocks, header }: PageProps) {
-  const router = useRouter();
-  // console.log(page);
-
-  // Calculate the parent path by going up one level
+  // Parent path, one level up
   const getParentPath = () => {
     const pathParts = page.path.split('/').filter(Boolean);
-    if (pathParts.length === 0) return '/';
-    if (pathParts.length === 1) return '/';
+    if (pathParts.length <= 1) return '/';
     return '/' + pathParts.slice(0, -1).join('/');
   };
+  const parentPath = getParentPath();
 
   return (
-    <article className="mt-4">
+    <article className="mt-10">
       {header && (
-        <header className="pb-0 space-y-4">
-          {/* Cover Image */}
+        <header className="mb-10 space-y-6">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight">{page.title}</h1>
+
+          {page.properties && (
+            <RenderProperties
+              properties={page.properties}
+              filterProperties={page.pageProperties}
+              pageLayout={true}
+            />
+          )}
+
           {page.cover && (
-            <div className="relative h-[50vh] rounded-lg overflow-hidden border">
+            <div className="relative h-[50vh] overflow-hidden border border-foreground bg-muted">
               <Image
                 src={page.cover.url}
-                alt={page.title}
-                placeholder="blur"
+                alt=""
+                placeholder={page.cover.blurDataURL ? "blur" : undefined}
                 blurDataURL={page.cover.blurDataURL}
                 fill
                 className="object-cover"
@@ -46,55 +49,24 @@ export function Page({ page, blocks, header }: PageProps) {
               />
             </div>
           )}
-
-          {/* Display all properties */}
-          {page.properties && (
-            <Card>
-              <CardContent>
-                <RenderProperties
-                  properties={page.properties}
-                  filterProperties={page.pageProperties}
-                  pageLayout={true}
-                />
-              </CardContent>
-            </Card>
-          )}
-          {/* Title */}
-          <div className="text-left space-y-2 top-0 bg-background py-6 z-10">
-            <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-              {page.icon && (
-                <span className="text-3xl md:text-4xl">{page.icon}</span>
-              )}
-              {page.title}
-            </h2>
-          </div>
         </header>
       )}
 
       {/* Content */}
       <section className="pb-4">
-        {blocks && blocks.length > 0 ? (
-          <div className="prose prose-lg max-w-none">
+        {blocks && blocks.length > 0 && (
+          <div className="max-w-none">
             <NotionRenderer blocks={blocks} />
           </div>
-        ) : (
-          <></>
         )}
       </section>
 
-      {/* Footer Navigation */}
+      {/* Back link */}
       {page.path !== "/" && (
-        <footer className="border-t py-12">
-          <div className="flex justify-center">
-            <Button
-              variant="outline"
-              onClick={() => router.push(getParentPath())}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              {getParentPath().slice(1)}
-            </Button>
-          </div>
+        <footer className="mt-8 border-t border-foreground pt-4 font-mono text-sm">
+          <Link href={parentPath} className="underline">
+            ← {parentPath === "/" ? "accueil" : parentPath.slice(1)}
+          </Link>
         </footer>
       )}
     </article>

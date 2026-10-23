@@ -14,61 +14,46 @@ export function Database({ page, items, header }: DatabaseProps) {
   const displayType = page.displayType || "grid";
 
   return (
-    <article className="mt-4">
+    <article className="mt-10">
       {header && (
-        <header className="pb-0 space-y-4">
-          {/* Cover Image */}
+        <header className="mb-8 space-y-6">
+          <h1 className="text-4xl font-bold leading-tight tracking-tight">{page.title}</h1>
           {page.cover && (
-            <div className="relative h-[50vh] rounded-lg overflow-hidden border">
+            <div className="relative h-[40vh] overflow-hidden border border-foreground bg-muted">
               <Image
                 src={page.cover.url}
-                placeholder="blur"
+                placeholder={page.cover.blurDataURL ? "blur" : undefined}
                 blurDataURL={page.cover.blurDataURL}
-                alt={page.title}
+                alt=""
                 fill
                 className="object-cover"
                 priority
               />
             </div>
           )}
-
-          {/* Title */}
-          <div className="text-left space-y-2 top-0 bg-background z-10">
-            <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-              {page.icon && (
-                <span className="text-3xl md:text-4xl">{page.icon}</span>
-              )}
-              {page.title}
-            </h2>
-          </div>
         </header>
       )}
 
       {/* Grid View */}
       {displayType === "grid" && (
-        <div className="my-7 w-full grid gap-7 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+        <div className="my-8 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
             <PageCard key={item.id} page={item} />
           ))}
         </div>
       )}
 
-      {/* List View */}
-      {displayType === "list" && (
-        <div className="my-7 w-full flex flex-col gap-4">
+      {/* List views */}
+      {(displayType === "list" || displayType === "list-compact") && (
+        <ul className="my-8 list-none border-t border-foreground p-0">
           {items.map((item) => (
-            <PageListItem key={item.id} page={item} />
+            <PageListItem
+              key={item.id}
+              page={item}
+              variant={displayType === "list-compact" ? "compact" : "default"}
+            />
           ))}
-        </div>
-      )}
-
-      {/* Compact list View */}
-      {displayType === "list-compact" && (
-        <div className="my-7 w-full flex flex-col gap-4">
-          {items.map((item) => (
-            <PageListItem variant="compact" key={item.id} page={item} />
-          ))}
-        </div>
+        </ul>
       )}
     </article>
   );

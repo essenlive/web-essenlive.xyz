@@ -56,6 +56,7 @@ import { normalizeSiteStructureUUIDs } from './utils'
 import type {
   SiteData,
   PageDefinition,
+  FeaturedDefinition,
   PageData,
   CleanData,
   BlockObjectResponse,
@@ -204,6 +205,8 @@ export const getDefinedData = cache(async (): Promise<PageData[]> => {
           displayType: p.displayType,
           cardProperties: p.cardProperties,
           pageProperties: p.pageProperties,
+          disableItemLinks: p.disableItemLinks,
+          featured: p.featured,
           ...(await cleanData(p)),
         }))
     );
@@ -373,6 +376,7 @@ export const getDatabaseItems = async (
             path: `${databaseDefinition.path}/${cleanedData.slug}`,
             pageProperties: databaseDefinition.pageProperties,
             cardProperties: databaseDefinition.cardProperties,
+            disableItemLinks: databaseDefinition.disableItemLinks,
             ...cleanedData,
           };
         })
@@ -385,6 +389,44 @@ export const getDatabaseItems = async (
   }
 };
 
+
+/**
+ * Fetches the items to feature under a page
+ *
+ * Looks up the database declared at `featured.from` in the site structure and
+ * queries it with its own filter AND the featured filter. Items keep the
+ * database path, so they link to the same pages as in the database view.
+ *
+ * @example
+ * // SITE_DATA:
+ * // "/": { "type": "page", "id": "…",
+ * //        "featured": { "from": "/index", "title": "Sélection",
+ * //                      "filter": { "property": "Sélection", "checkbox": { "equals": true } } } }
+ */
+export const getFeaturedItems = async (
+  featured: FeaturedDefinition
+): Promise<{ source: PageDefinition; items: PageData[] } | null> => {
+  const source = getSiteStructure().structure[featured.from];
+  if (!source || source.type !== "database") {
+    console.error(`Featured source "${featured.from}" is not a database of the site structure.`);
+    return null;
+  }
+
+  const filters = [source.filter, featured.filter].filter(Boolean);
+  const filter =
+    filters.length === 0 ? undefined : filters.length === 1 ? filters[0] : { and: filters };
+
+  const items = await getDatabaseItems({
+    ...source,
+    filter,
+    sorts: featured.sorts ?? source.sorts,
+  });
+
+  return {
+    source,
+    items: featured.limit ? items.slice(0, featured.limit) : items,
+  };
+};
 
 /**
  * Fetches top-level blocks from a Notion page

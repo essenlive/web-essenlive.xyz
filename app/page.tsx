@@ -2,8 +2,10 @@ import { notFound } from "next/navigation";
 import {
   getPageContentWithChildren,
   getDatabaseItems,
-  getPageByPath
+  getPageByPath,
+  getFeaturedItems
 } from "@/lib/notion";
+import { Featured } from "@/components/featured";
 import { Page } from "@/components/notion/page";
 import { Database } from "@/components/notion/database";
 
@@ -32,7 +34,21 @@ export default async function HomePage() {
   // Handle single page view (/page-slug)
   else if ( pageData.type === "page") {
     const blocks = await getPageContentWithChildren(pageData);
-    return <Page page={pageData} blocks={blocks || []} header={false} />;
+    const featured = pageData.featured
+      ? await getFeaturedItems(pageData.featured)
+      : null;
+    return (
+      <>
+        <Page page={pageData} blocks={blocks || []} header={false} />
+        {featured && (
+          <Featured
+            title={pageData.featured?.title}
+            source={featured.source}
+            items={featured.items}
+          />
+        )}
+      </>
+    );
   }
 
   // Handle error pages

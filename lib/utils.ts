@@ -9,8 +9,8 @@ export function cn(...inputs: ClassValue[]) {
 
   export function formatDate(date : Date) {
     const d = new Date(date);
-    // Use Intl.DateTimeFormat (en-GB) for day/month/year with short month, then lowercase month and strip leading zero
-    const formatted = d.toLocaleDateString('en-GB', {
+    // Short month and year, in French (e.g. "déc. 2025")
+    const formatted = d.toLocaleDateString('fr-FR', {
       month: 'short',
       year: 'numeric',
     });

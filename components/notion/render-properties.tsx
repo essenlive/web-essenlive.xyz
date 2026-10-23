@@ -1,174 +1,64 @@
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import {
-  CalendarDays,
-  CheckCircle2,
-  XCircle,
-  Mail,
-  Phone,
-  Link2,
-  MapPin,
-  Hash
-} from "lucide-react"
+import { Fragment, type ReactNode } from "react"
 import { CleanPageProperties } from "@/lib/types"
-import { formatDate, cn, notionColorToTailwind } from "@/lib/utils"
+import { formatDate, cn } from "@/lib/utils"
 
-interface PropertyDisplayProps {
-  propKey: string;
-  propValue: CleanPageProperties[string];
-}
-
-const PropertyDisplay = ({ propKey, propValue }: PropertyDisplayProps) => {
-  
-  if (!propValue || !propValue.value ) return null;
+/**
+ * Turns a Notion property into plain text (or a link).
+ * Low-tech rendering: no badges, no icons, no colors — just text.
+ */
+function propertyValue(propKey: string, propValue: CleanPageProperties[string]): ReactNode {
+  if (!propValue || !propValue.value) return null;
 
   switch (propValue.type) {
     case "checkbox":
-      return (
-        <div className="flex items-center gap-2 text-sm">
-          {propValue.value ? (
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-          ) : (
-            <XCircle className="h-4 w-4 text-muted-foreground" />
-          )}
-          <span className="text-muted-foreground">{propKey}</span>
-        </div>
-      );
+      return propValue.value ? propKey : null;
 
     case "date":
     case "created_time":
     case "last_edited_time":
-      return (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <CalendarDays className="h-3 w-3" />
-          {/* <span className="text-xs">{propKey}:</span> */}
-          <span>{formatDate(propValue.value)}</span>
-        </div>
-      );
+      return formatDate(propValue.value);
 
     case "email":
-      return (
-        <div className="flex items-center gap-2 text-sm">
-          <Mail className="h-3 w-3 text-muted-foreground" />
-          <a
-            href={`mailto:${propValue.value}`}
-            className="text-primary hover:underline text-xs"
-          >
-            {propValue.value}
-          </a>
-        </div>
-      );
+      return <a href={`mailto:${propValue.value}`} className="underline">{propValue.value}</a>;
 
     case "phone_number":
-      return (
-        <div className="flex items-center gap-2 text-sm">
-          <Phone className="h-3 w-3 text-muted-foreground" />
-          <a
-            href={`tel:${propValue.value}`}
-            className="text-primary hover:underline text-xs"
-          >
-            {propValue.value}
-          </a>
-        </div>
-      );
+      return <a href={`tel:${propValue.value}`} className="underline">{propValue.value}</a>;
 
     case "url":
       return (
-        <div className="flex items-center gap-2 text-sm">
-          <Link2 className="h-3 w-3 text-muted-foreground" />
-          <a
-            href={propValue.value}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-primary hover:underline text-xs truncate"
-          >
-            {propValue.value}
-          </a>
-        </div>
-      );
-
-    case "place":
-      return (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <MapPin className="h-3 w-3" />
-          <span className="text-xs">{propValue.value}</span>
-        </div>
-      );
-
-    case "number":
-      return (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Hash className="h-3 w-3" />
-          <span className="text-xs">{propKey}:</span>
-          <span className="font-medium">{propValue.value}</span>
-        </div>
+        <a href={propValue.value} target="_blank" rel="noopener noreferrer" className="underline break-all">
+          {propValue.value.replace(/^https?:\/\//, "")}
+        </a>
       );
 
     case "select":
     case "status":
-      return (
-        <Badge
-          variant="secondary"
-          className={cn("text-xs", notionColorToTailwind(propValue.value.color))}
-        >
-          {propValue.value.name}
-        </Badge>
-      );
+      return propValue.value.name;
 
     case "multi_select":
-      return (
-        <div className="flex flex-wrap gap-1">
-          {propValue.value.slice(0, 3).map((item, index) => (
-            <Badge
-              key={index}
-              variant="secondary"
-              className={cn("text-xs", notionColorToTailwind(item.color))}
-            >
-              {item.name}
-            </Badge>
-          ))}
-          {propValue.value.length > 3 && (
-            <Badge variant="outline" className="text-xs">
-              +{propValue.value.length - 3}
-            </Badge>
-          )}
-        </div>
-      );
+      return propValue.value.length > 0
+        ? propValue.value.map((item) => item.name).join(", ")
+        : null;
 
+    case "number":
+    case "place":
     case "people":
     case "created_by":
     case "last_edited_by":
-      return (
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarFallback className="text-xs">
-              {propValue.value.slice(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-xs text-muted-foreground">{propValue.value}</span>
-        </div>
-      );
+      return String(propValue.value);
 
     case "rich_text":
-      if (propValue.value && propValue.value.length > 0) {
-        return (
-          <p className="text-sm text-muted-foreground line-clamp-2">
-            {/* {JSON.stringify(propValue.value)} */}
-            {propValue.value}
-          </p>
-        );
-      }
-      return null;
+      return propValue.value && propValue.value.length > 0 ? propValue.value : null;
 
     default:
       return null;
   }
-};
-  
+}
 
 interface RenderPropertiesProps {
   properties: CleanPageProperties;
   filterOutTitle?: boolean;
+  /** true: a key/value list (project page). false: one inline line (cards, lists). */
   pageLayout?: boolean;
   filterProperties?: string[];
   className?: string;
@@ -182,46 +72,51 @@ export function RenderProperties({
   className
 }: RenderPropertiesProps) {
   let displayProperties = Object.entries(properties);
-  // console.log(displayProperties);
 
   // Filter out title if requested
   if (filterOutTitle) {
     displayProperties = displayProperties.filter(([, value]) => value.type !== "title");
   }
 
-  // Filter to only include specific properties if filterProperties is provided
-  // and order them according to the filterProperties array
+  // Keep only the requested properties, in the requested order
   if (filterProperties && filterProperties.length > 0) {
     displayProperties = filterProperties
-      .map((propKey) => {
-        const entry = displayProperties.find(([key]) => key === propKey);
-        return entry;
-      })
+      .map((propKey) => displayProperties.find(([key]) => key === propKey))
       .filter((entry): entry is [string, CleanPageProperties[string]] => entry !== undefined);
   }
 
-  if (displayProperties.length === 0) return null;
+  const rendered = displayProperties
+    .map(([key, value]) => ({ key, node: propertyValue(key, value) }))
+    .filter((p) => p.node !== null && p.node !== "");
+
+  if (rendered.length === 0) return null;
+
+  if (pageLayout) {
+    return (
+      <dl
+        className={cn(
+          "grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)] gap-x-4 gap-y-1 font-mono text-sm",
+          className
+        )}
+      >
+        {rendered.map(({ key, node }) => (
+          <Fragment key={key}>
+            <dt className="text-muted-foreground lowercase">{key}</dt>
+            <dd className="m-0">{node}</dd>
+          </Fragment>
+        ))}
+      </dl>
+    );
+  }
 
   return (
-    <div
-      className={cn(
-        pageLayout && "grid grid-cols-2",
-        !pageLayout && "flex flex-col",
-        "gap-2",
-        className
-      )}
-    >
-      {displayProperties.map(([key, value], index) => (
-        <div
-          key={key}
-          className={cn(
-            "flex",
-            pageLayout && (index % 2 === 0 ? "justify-start" : "justify-end") 
-          )}
-        >
-          <PropertyDisplay propKey={key} propValue={value} />
-        </div>
+    <p className={cn("m-0 font-mono text-xs leading-5 text-muted-foreground", className)}>
+      {rendered.map(({ key, node }, index) => (
+        <Fragment key={key}>
+          {index > 0 && " · "}
+          {node}
+        </Fragment>
       ))}
-    </div>
+    </p>
   );
 }
