@@ -161,17 +161,17 @@ async function applyDithering(inputPath: string, outputPath: string): Promise<vo
   }
 
   // Resize and get raw RGBA pixel data
-  const rawBuffer = await sharp(inputPath)
+  const { data: rawBuffer, info } = await sharp(inputPath)
     .resize(targetWidth, targetHeight, {
       fit: 'inside',
       withoutEnlargement: true
     })
     .raw()
     .ensureAlpha()
-    .toBuffer();
+    .toBuffer({ resolveWithObject: true });
 
-  const width = targetWidth;
-  const height = targetHeight;
+  // sharp may round the size (e.g. 839 instead of 840): read rows with its width, not ours
+  const { width, height } = info;
 
   // Extract dynamic palette from the image
   const palette = extractPaletteFromImage(rawBuffer, width, height, 16);
