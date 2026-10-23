@@ -286,7 +286,21 @@ async function applyDithering(inputPath: string, outputPath: string): Promise<vo
  * // Returns: "/images/abc123def456.webp"
  * // File saved to: public/images/abc123def456.webp
  */
-export async function downloadImage(url: string): Promise<{url: string, blurDataURL?: string}> {
+type DownloadedImage = { url: string; blurDataURL?: string };
+const inFlight = new Map<string, Promise<DownloadedImage>>();
+
+// Pages sharing an image (e.g. a default cover) would race on the same temp file
+export function downloadImage(url: string): Promise<DownloadedImage> {
+  const key = url.split('?')[0];
+  let p = inFlight.get(key);
+  if (!p) {
+    p = downloadImageOnce(url).finally(() => inFlight.delete(key));
+    inFlight.set(key, p);
+  }
+  return p;
+}
+
+async function downloadImageOnce(url: string): Promise<DownloadedImage> {
   try {
     // Check if dithering is enabled via environment variable
     const shouldDither = process.env.DITHER_IMAGES === 'true';
