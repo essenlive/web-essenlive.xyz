@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-23T21:17:52.277283Z",
+  "title": "Design System: essenlive.xyz",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#F1EFE8",
+        "tonalRamp": [
+          "#484846",
+          "#787874",
+          "#A9A7A2",
+          "#CDCBC5",
+          "#F1EFE8",
+          "#F5F4EF",
+          "#F9F8F5",
+          "#FCFCFA"
+        ]
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "#1B1B1B",
+        "tonalRamp": [
+          "#080808",
+          "#0E0E0E",
+          "#131313",
+          "#171717",
+          "#1B1B1B",
+          "#5F5F5F",
+          "#989898",
+          "#D1D1D1"
+        ]
+      },
+      "paper-shade": {
+        "role": "neutral",
+        "displayName": "Paper Shade",
+        "canonical": "#E4E1D8",
+        "tonalRamp": [
+          "#444441",
+          "#72706C",
+          "#A09E97",
+          "#C2BFB8",
+          "#E4E1D8",
+          "#ECEAE4",
+          "#F3F2ED",
+          "#FAF9F7"
+        ]
+      },
+      "graphite": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "#57554F",
+        "tonalRamp": [
+          "#1A1A18",
+          "#2C2A28",
+          "#3D3C37",
+          "#4A4843",
+          "#57554F",
+          "#898884",
+          "#B3B2B0",
+          "#DDDDDC"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline Rule",
+        "canonical": "#C9C5BA",
+        "tonalRamp": [
+          "#3C3B38",
+          "#64625D",
+          "#8D8A82",
+          "#ABA79E",
+          "#C9C5BA",
+          "#D9D6CF",
+          "#E7E5E0",
+          "#F4F3F1"
+        ]
+      },
+      "vermilion": {
+        "role": "secondary",
+        "displayName": "Vermilion",
+        "canonical": "#B0361C",
+        "tonalRamp": [
+          "#351008",
+          "#581B0E",
+          "#7B2614",
+          "#962E18",
+          "#B0361C",
+          "#C87260",
+          "#DBA599",
+          "#EFD7D2"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Page H1."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "H2/H3 and card titles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Paragraphs, 40rem measure."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Mono metadata."
+      }
+    },
+    "shadows": [],
+    "motion": [],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Link",
+      "kind": "custom",
+      "refersTo": "link",
+      "description": "Underlined text; turns vermilion on hover.",
+      "html": "<a class=\"ds-link\" href=\"#\">Project title</a>",
+      "css": ".ds-link{color:#1B1B1B;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}.ds-link:hover,.ds-link:focus-visible{color:#B0361C}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "description": "Sitename, page links, mono socials over a 1px ink rule.",
+      "html": "<header class=\"ds-nav\"><div><a class=\"ds-nav-brand\" href=\"#\">essenlive.xyz</a> <a class=\"ds-link\" href=\"#\">works</a> <a class=\"ds-link\" href=\"#\">experiments</a></div><div class=\"ds-nav-social\"><a class=\"ds-link\" href=\"#\">github</a> <a class=\"ds-link\" href=\"#\">mail</a></div></header>",
+      "css": ".ds-nav{display:flex;justify-content:space-between;align-items:baseline;gap:24px;border-bottom:1px solid #1B1B1B;padding:16px 0 14px;background:#F1EFE8;color:#1B1B1B}.ds-nav-brand{font-weight:700;text-decoration:none;color:#1B1B1B;margin-right:24px}.ds-nav-social{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px}.ds-nav .ds-link{margin-right:20px}.ds-link{color:#1B1B1B;text-decoration:underline;text-underline-offset:3px}.ds-link:hover{color:#B0361C}"
+    },
+    {
+      "name": "Project Card",
+      "kind": "card",
+      "description": "Framed 4:3 image, bold title link, one mono meta line.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-frame\"></div><h3><a class=\"ds-link\" href=\"#\">Project title</a></h3><p class=\"ds-meta\">tag · category · 2025</p></article>",
+      "css": ".ds-card{background:#F1EFE8;color:#1B1B1B;width:260px}.ds-frame{aspect-ratio:4/3;border:1px solid #1B1B1B;background:repeating-conic-gradient(#E4E1D8 0 25%,#C9C5BA 0 50%) 0 0/8px 8px}.ds-card h3{margin:12px 0 4px;font-size:18px;line-height:1.35;font-weight:700}.ds-meta{margin:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:20px;color:#57554F}.ds-link{color:#1B1B1B;text-decoration:underline;text-underline-offset:3px}.ds-link:hover{color:#B0361C}"
+    },
+    {
+      "name": "Compact List Row",
+      "kind": "custom",
+      "description": "Hairline-ruled row: title left, mono metadata right.",
+      "html": "<ul class=\"ds-list\"><li><strong>Course title</strong><span class=\"ds-meta\">tag · 2024</span></li></ul>",
+      "css": ".ds-list{list-style:none;margin:0;padding:0;border-top:1px solid #1B1B1B;background:#F1EFE8;color:#1B1B1B;width:360px}.ds-list li{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid #C9C5BA}.ds-meta{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:#57554F}"
+    },
+    {
+      "name": "Section Heading",
+      "kind": "custom",
+      "description": "H2 with an ink rule beneath.",
+      "html": "<h2 class=\"ds-h2\">Sélection</h2>",
+      "css": ".ds-h2{margin:0;padding-bottom:8px;border-bottom:1px solid #1B1B1B;font-size:18px;font-weight:700;color:#1B1B1B;background:#F1EFE8}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Printed Page",
+    "overview": "A single column of ink on paper. Austere and technical: nothing is decorated, everything is text, a rule, or a dithered image. The lowtech ethos is the aesthetic.",
+    "keyCharacteristics": [
+      "Light only; paper and ink, one accent.",
+      "Zero radius, zero shadow; structure comes from 1px rules and underlines.",
+      "System sans for reading, system mono for metadata.",
+      "Links are underlined text, never buttons.",
+      "Images are dithered, served as-is, framed in a 1px ink border."
+    ],
+    "rules": [
+      {
+        "name": "The Red Is A Pen Rule",
+        "body": "Vermilion appears only on hover/active feedback and errors. It is never a fill, never a heading color.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Dark Mode Rule",
+        "body": "One palette. No toggle, no .dark variants in new work.",
+        "section": "colors"
+      },
+      {
+        "name": "The Nothing To Download Rule",
+        "body": "No webfont is ever loaded. Hierarchy comes from weight and size only.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Page Rule",
+        "body": "If a surface needs separating, draw a rule. Never add a shadow, blur, or tint card.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do use Ink on Paper for text and 1px Ink rules for structure.",
+      "Do set metadata in system mono, small, graphite.",
+      "Do let dithered images be the only texture and color.",
+      "Do keep every page a single 48rem column.",
+      "Do keep payloads small: system fonts, no animation libraries on the critical path."
+    ],
+    "donts": [
+      "Don't use rounded corners, shadows, gradients, blur, or badges (the generic SaaS / ShadCN default look).",
+      "Don't add a dark mode or theme toggle.",
+      "Don't use Vermilion for fills, headings, or decoration.",
+      "Don't download webfonts.",
+      "Don't hard-code content that belongs in Notion."
+    ]
+  }
+}
