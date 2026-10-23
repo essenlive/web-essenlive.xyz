@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react'
-import { useTheme } from 'next-themes'
 
 interface MermaidDiagramProps {
   chart: string
@@ -12,7 +11,6 @@ export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isInitialized, setIsInitialized] = useState(false)
   const [mermaidModule, setMermaidModule] = useState<any>(null)
-  const { resolvedTheme } = useTheme()
 
   // Dynamically import mermaid only when needed
   useEffect(() => {
@@ -25,8 +23,7 @@ export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
 
   useEffect(() => {
     if (!isInitialized && mermaidModule) {
-      const isDark = resolvedTheme === 'dark' ||
-                     (resolvedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+      const isDark = false
 
       mermaidModule.initialize({
         startOnLoad: false,
@@ -42,7 +39,7 @@ export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
       })
       setIsInitialized(true)
     }
-  }, [isInitialized, resolvedTheme, mermaidModule])
+  }, [isInitialized, mermaidModule])
 
   useEffect(() => {
     if (!containerRef.current || !isInitialized || !mermaidModule) return
@@ -83,7 +80,7 @@ export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
     }
 
     renderDiagram()
-  }, [chart, isInitialized, resolvedTheme, mermaidModule])
+  }, [chart, isInitialized, mermaidModule])
 
   return (
     <div 

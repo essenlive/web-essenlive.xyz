@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
@@ -69,7 +68,6 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
               {link.label}
             </a>
           ))}
-          <ThemeToggle />
         </div>
       </div>
     </header>
