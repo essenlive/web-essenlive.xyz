@@ -8,7 +8,7 @@ export function RichText({ richText }: { richText: any[] }) {
   return (
     <>
       {richText.map((text, index) => {
-        let content = text.plain_text
+        const content = text.plain_text
         let className = ''
 
         if (text.annotations.bold) {

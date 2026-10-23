@@ -674,7 +674,7 @@ async function cleanData(
     title = data.title.map(t=>t.plain_text).join("");
   }
   else if ( data.object === "page") {
-    let titleProps = Object.keys(data.properties).filter(p=>data.properties[p].type === "title")
+    const titleProps = Object.keys(data.properties).filter(p=>data.properties[p].type === "title")
     title = properties[titleProps[0]].value;
   }
 
