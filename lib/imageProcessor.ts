@@ -65,11 +65,18 @@ function extractPaletteFromImage(
   }
 
   // Simple k-means clustering
-  // Initialize centroids with random samples
-  const centroids: { r: number; g: number; b: number }[] = [];
-  for (let i = 0; i < numColors; i++) {
-    const idx = Math.floor(Math.random() * samples.length);
-    centroids.push({ ...samples[idx] });
+  // Initialize centroids deterministically: each new one is the sample farthest
+  // from those already chosen, so small distinct colors (UI accents) survive
+  const centroids: { r: number; g: number; b: number }[] = [{ ...samples[0] }];
+  const nearest = samples.map(s => (s.r - samples[0].r) ** 2 + (s.g - samples[0].g) ** 2 + (s.b - samples[0].b) ** 2);
+  while (centroids.length < numColors) {
+    let far = 0;
+    nearest.forEach((d, i) => { if (d > nearest[far]) far = i; });
+    const c = { ...samples[far] };
+    centroids.push(c);
+    samples.forEach((s, i) => {
+      nearest[i] = Math.min(nearest[i], (s.r - c.r) ** 2 + (s.g - c.g) ** 2 + (s.b - c.b) ** 2);
+    });
   }
 
   // Iterate k-means
@@ -174,7 +181,7 @@ async function applyDithering(inputPath: string, outputPath: string): Promise<vo
   const { width, height } = info;
 
   // Extract dynamic palette from the image
-  const palette = extractPaletteFromImage(rawBuffer, width, height, 16);
+  const palette = extractPaletteFromImage(rawBuffer, width, height, 32);
 
   // Atkinson error diffusion against the extracted palette itself
   // (diffusing against any other palette gives noise and muddy colors)
