@@ -8,7 +8,9 @@ const bundleAnalyzer = withBundleAnalyzer({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    formats: ['image/avif', 'image/webp'], // Use modern image formats
+    // Images are already resized + dithered (lossless WebP) by lib/imageProcessor.ts:
+    // re-encoding them (avif/webp q=75) would destroy the dithering
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
