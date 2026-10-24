@@ -89,7 +89,7 @@ function BlockRenderer({ block, number }: { block: BlockWithChildren; number: nu
       return <CalloutBlock block={block.callout} children={block.children} />;
 
     case "divider":
-      return <hr className="my-8 border-0 border-t border-foreground" />;
+      return <hr className="my-7 border-0 border-t border-foreground" />;
 
     case "image":
       return <ImageBlock block={block.image} />;
@@ -177,7 +177,7 @@ function CodeBlock({ block }: { block: any }) {
 
 function QuoteBlock({ block }: { block: any }) {
   return (
-    <blockquote className="my-6 max-w-[40rem] border-l border-foreground pl-5 text-base italic text-foreground">
+    <blockquote className="my-6 max-w-[40rem] border-l border-foreground pl-5 text-body italic text-foreground">
       <RichText richText={block.rich_text} />
     </blockquote>
   )
@@ -188,8 +188,8 @@ function CalloutBlock({ block, children }: { block: any; children?: BlockWithChi
 
   return (
     <div className="my-6 flex items-start gap-4 border border-foreground p-4">
-      {emoji && <span aria-hidden className="flex-shrink-0 text-xl leading-7">{emoji}</span>}
-      <div className="min-w-0 flex-1 space-y-3 text-base text-foreground">
+      {emoji && <span aria-hidden className="flex-shrink-0 text-title">{emoji}</span>}
+      <div className="min-w-0 flex-1 space-y-3 text-body text-foreground">
         <div>
           <RichText richText={block.rich_text} />
         </div>
@@ -203,7 +203,7 @@ function CalloutBlock({ block, children }: { block: any; children?: BlockWithChi
 function UrlRow({ kind, url }: { kind: string; url: string }) {
   return (
     <p className="my-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-y border-border py-3">
-      <span className="font-mono text-xs text-muted-foreground">{kind}</span>
+      <span className="font-mono text-meta text-muted-foreground">{kind}</span>
       <a href={url} target="_blank" rel="noopener noreferrer" className="min-w-0 break-all underline decoration-1">
         {url}
       </a>
@@ -237,7 +237,7 @@ function EmbedBlock({ block }: { block: any }) {
 function EquationBlock({ block }: { block: any }) {
   return (
     <div className="my-6 overflow-x-auto bg-muted p-4 text-center">
-      <code className="font-mono text-lg text-foreground">{block.expression}</code>
+      <code className="font-mono text-title text-foreground">{block.expression}</code>
     </div>
   )
 }

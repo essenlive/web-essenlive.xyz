@@ -16,18 +16,18 @@ export function TableBlock({ block, children }: { block: any; children?: BlockWi
 
   if (colophon) {
     return (
-      <div className="my-6 border-t border-foreground">
+      <div className="my-7 border-t border-foreground [h2+&]:border-t-0">
         <table className="block w-full md:table">
           <tbody className="block md:table-row-group">
             {bodyRows.map((row) => (
-              <tr key={row.id} className="block border-b border-border py-2 md:table-row md:py-0">
+              <tr key={row.id} className="block border-b border-dashed border-border py-1.75 md:table-row md:py-0">
                 {row.table_row?.cells?.map((cell: any[], cellIndex: number) =>
                   cellIndex === 0 ? (
-                    <th key={cellIndex} scope="row" className="block text-left font-normal md:table-cell md:w-[40%] md:py-2 md:pr-6 md:align-top">
+                    <th key={cellIndex} scope="row" className="block text-left font-normal md:table-cell md:w-64 md:py-1.75 md:pr-6 md:align-top">
                       <RichText richText={cell} />
                     </th>
                   ) : (
-                    <td key={cellIndex} className="block font-mono text-[0.8125rem] leading-5 text-muted-foreground md:table-cell md:py-2 md:align-top">
+                    <td key={cellIndex} className="block text-meta font-mono text-muted-foreground md:table-cell md:py-1.75 md:align-top">
                       <RichText richText={cell} />
                     </td>
                   )
@@ -42,7 +42,7 @@ export function TableBlock({ block, children }: { block: any; children?: BlockWi
 
   return (
     <div className="my-6 overflow-x-auto">
-      <table className="w-full border-collapse text-left text-base">
+      <table className="w-full border-collapse text-left text-body">
         {hasColumnHeader && tableRows.length > 0 && (
           <thead>
             <tr className="border-b border-foreground">

@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+/* Type scale, one baseline unit of 1.75rem: 13 mono meta, 17 body, 21 title, 28/36/48 display. */
+@theme {
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.3125rem;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.75rem;
+  --text-title: 1.3125rem;
+  --text-title--line-height: 1.75rem;
+  --text-display-sm: 1.5rem;
+  --text-display-sm--line-height: 1.75rem;
+  --text-display: 1.875rem;
+  --text-display--line-height: 2.625rem;
+  --text-display-lg: 2.5rem;
+  --text-display-lg--line-height: 3.5rem;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -47,13 +63,47 @@
   --muted-foreground: #57554F;
   --accent: #E4E1D8;
   --accent-foreground: #1B1B1B;
-  --highlight: #B0361C;
-  --destructive: #B0361C;
+  --highlight: #1B1B1B;
+  --destructive: #1B1B1B;
   --border: #C9C5BA;
   --input: #C9C5BA;
   --ring: #57554F;
 }
 
+
+/* 2x2 ordered dither: placeholder behind images, and the face of cards without a cover. */
+@utility dither {
+  background-color: var(--muted);
+  background-image: repeating-conic-gradient(var(--border) 0 25%, transparent 0 50%);
+  background-size: 4px 4px;
+}
+
+/* Catalogue numbers: 01, 02... in front of titles inside an .index. */
+.index {
+  counter-reset: n;
+}
+.index > * {
+  counter-increment: n;
+}
+.index h3::before,
+.index [data-index]::before {
+  content: counter(n, decimal-leading-zero) "\00a0\00a0";
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--muted-foreground);
+}
+
+.index h3[data-prefix]::before,
+.index [data-index][data-prefix]::before {
+  content: attr(data-prefix) "\00a0\00a0";
+}
+/* Chevron on the hovered entry. */
+.row:hover [data-index]::after,
+.cells > *:hover h3::after {
+  content: "\00a0›";
+  font-family: var(--font-mono);
+}
 
 @layer base {
   * {
@@ -62,17 +112,177 @@
   body {
     @apply bg-background text-foreground;
     font-size: 1.0625rem;
-    line-height: 1.55;
+    /* One baseline unit: 1.75rem. Mono meta is 3/4 of it, headings are 1 or 1.5 units. */
+    line-height: 1.75rem;
   }
   a {
     text-underline-offset: 3px;
   }
+  a {
+    transition: text-decoration-color 120ms ease-out, text-decoration-thickness 120ms ease-out;
+  }
+  /* Hover: the underline thickens; no colour. */
   a:hover {
-    color: var(--highlight);
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--highlight);
+  }
+  ::selection {
+    background: var(--highlight);
+    color: var(--background);
   }
   a:focus-visible,
   summary:focus-visible {
     outline: 2px solid var(--foreground);
     outline-offset: 3px;
   }
+}
+
+
+/* Light textures and motion. Everything is CSS, nothing downloads. */
+
+/* Dot trame on the rail, running past the centred page to the viewport edge. */
+.bleed-l::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  z-index: -1;
+  background-image: radial-gradient(var(--border) 0.8px, transparent 1px);
+  background-size: 7px 7px;
+}
+.bleed-l::before { right: 0; left: -100vw; }
+/* Ruled cell grid: cells run from the rail's line to the right edge; images fill the cell, text sits on the page's left edge. */
+.cells {
+  margin-left: calc(-1 * var(--bleed-l) - 1px);
+  margin-right: -1.5rem;
+}
+.cells > * {
+  background: var(--background);
+  border-top: 1px solid var(--foreground);
+  border-left: 1px solid var(--foreground);
+  padding: 0;
+}
+
+/* Page titles: one line, truncated rather than wrapped. */
+.title {
+  /* Vertical padding keeps the breadcrumb link's hit area inside the clipped box. */
+  padding-block: 0.5rem;
+  margin-block: -0.5rem;
+  font-size: var(--text-display-sm);
+  line-height: var(--text-display-sm--line-height);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (min-width: 48rem) {
+  .title {
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+  }
+}
+
+/* Full-bleed rules: from the rail's line to the right edge of the viewport. */
+:root { --bleed-l: 1.5rem; }
+@media (min-width: 48rem) {
+  :root { --bleed-l: 2.5rem; }
+}
+.rule-t,
+.rule-b,
+.rule-bd {
+  position: relative;
+}
+/* A block that runs from the rail's line to the right edge; .band keeps its content inset, .band-flush does not. */
+.band,
+.band-flush {
+  margin-inline: calc(-1 * var(--bleed-l)) -1.5rem;
+}
+.band {
+  padding-inline: var(--bleed-l) 1.5rem;
+}
+.rule-t::after,
+.rule-b::after,
+.rule-bd::after {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--bleed-l));
+  right: -100vw;
+  pointer-events: none;
+}
+.rule-t::after { top: 0; border-top: 1px solid var(--foreground); }
+.rule-b::after { bottom: 0; border-bottom: 1px solid var(--foreground); }
+.rule-bd::after { bottom: 0; border-bottom: 1px dashed var(--border); }
+
+/* A full-bleed rule that meets the rail's line. */
+.rule-r::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: -100vw;
+  border-top: 1px solid var(--foreground);
+}
+
+/* List rows fade in a diagonal hatch under the pointer. */
+.row {
+  position: relative;
+  isolation: isolate;
+}
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0 -100vw 0 calc(-1 * var(--bleed-l));
+  z-index: -1;
+  opacity: 0;
+  background-image: repeating-linear-gradient(135deg, var(--border) 0 1px, transparent 1px 6px);
+  transition: opacity 150ms ease-out;
+}
+.row:hover::before {
+  opacity: 0.8;
+}
+
+/* Pages settle in once. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.rise {
+  animation: rise 240ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
+
+
+/* Home: the first block of the page is its statement, a step above any other title. */
+/* A short H1 takes the big steps; a long opening paragraph only takes the title step, bold. */
+.lead > div > h1:first-child {
+  max-width: 40rem;
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+@media (min-width: 48rem) {
+  .lead > div > h1:first-child {
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+  }
+}
+.lead > div > p:first-child {
+  font-size: var(--text-title);
+  line-height: var(--text-title--line-height);
+  font-weight: 700;
 }

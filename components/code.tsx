@@ -61,7 +61,7 @@ export function CodeHighlighter({ codeString, language, className }: CodeHighlig
           marginBottom: 0,
           marginLeft: 0,
           padding: "1rem",
-          fontSize: "0.875rem",
+          fontSize: "0.8125rem",
           lineHeight: "1.5rem",
           borderRadius: "var(--radius)",
           background: isDarkMode ? "#1d1f21" : "#f5f5f5",
@@ -86,7 +86,7 @@ export function CodeHighlighter({ codeString, language, className }: CodeHighlig
           marginBottom: 0,
           marginLeft: 0,
           padding: "1rem",
-          fontSize: "0.875rem",
+          fontSize: "0.8125rem",
           lineHeight: "1.5rem",
           borderRadius: "var(--radius)", // Use shadcn border radius variable
         }}

@@ -2,6 +2,15 @@ import { Fragment, type ReactNode } from "react"
 import { CleanPageProperties } from "@/lib/types"
 import { formatDate, cn } from "@/lib/utils"
 
+/** Shows the host only; the full URL stays in the href. */
+const urlHost = (url: string) => {
+  try {
+    return new URL(url).host.replace(/^www\./, "");
+  } catch {
+    return url;
+  }
+};
+
 /**
  * Turns a Notion property into plain text (or a link).
  * Low-tech rendering: no badges, no icons, no colors — just text.
@@ -27,7 +36,7 @@ function propertyValue(propKey: string, propValue: CleanPageProperties[string]):
     case "url":
       return (
         <a href={propValue.value} target="_blank" rel="noopener noreferrer" className="underline break-all">
-          {propValue.value.replace(/^https?:\/\//, "")}
+          {urlHost(propValue.value)}
         </a>
       );
 
@@ -95,7 +104,7 @@ export function RenderProperties({
     return (
       <dl
         className={cn(
-          "grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)] gap-x-4 gap-y-1 font-mono text-sm",
+          "grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)] gap-x-4 gap-y-1 text-meta font-mono",
           className
         )}
       >
@@ -110,7 +119,7 @@ export function RenderProperties({
   }
 
   return (
-    <p className={cn("m-0 font-mono text-[0.8125rem] leading-5 text-muted-foreground", className)}>
+    <p className={`text-meta m-0 font-mono text-muted-foreground ${className ?? ""}`}>
       {rendered.map(({ key, node }, index) => (
         <Fragment key={key}>
           {index > 0 && " · "}

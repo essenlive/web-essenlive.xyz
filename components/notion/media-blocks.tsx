@@ -12,7 +12,7 @@ function blockUrl(block: any): string {
 function LinkRow({ kind, name, url, action }: { kind: string; name: string; url: string; action: string }) {
   return (
     <p className="my-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-y border-border py-3">
-      <span className="font-mono text-xs text-muted-foreground">{kind}</span>
+      <span className="font-mono text-meta text-muted-foreground">{kind}</span>
       <span className="font-bold">{name}</span>
       {url && (
         <a href={url} target="_blank" rel="noopener noreferrer" className="underline decoration-1">
@@ -38,7 +38,7 @@ export function ImageBlock({ block }: { block: any }) {
       <div className="relative overflow-hidden border border-foreground bg-muted">
         <Image
           src={imageUrl}
-          alt={caption || 'Image'}
+          alt=""
           width={800}
           height={400}
           className="w-full h-auto"
@@ -46,7 +46,7 @@ export function ImageBlock({ block }: { block: any }) {
         />
       </div>
       {caption && (
-        <figcaption className="mt-2 font-mono text-xs text-muted-foreground">
+        <figcaption className="mt-2 font-mono text-meta text-muted-foreground">
           {caption}
         </figcaption>
       )}

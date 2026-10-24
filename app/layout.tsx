@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Navigation } from "@/components/navigation";
 import { getSiteStructure } from "@/lib/notion";
+import { PageSize } from "@/components/page-size";
 import Script from "next/script";
 
 export default function RootLayout({
@@ -35,21 +36,23 @@ export default function RootLayout({
         >
           Aller au contenu
         </a>
-        <div className="relative flex min-h-screen flex-col bg-background text-foreground">
+        <div className="overflow-x-clip">
+        <div className="relative grid min-h-screen w-full grid-rows-[auto_1fr] bg-background text-foreground md:grid-cols-[calc(15rem+50px)_minmax(0,1fr)] md:grid-rows-none">
           <Navigation
             sitename={sitename}
             socials={socials}
             navigation={navigation}
           />
-          <main id="main" className="flex-1 w-full max-w-3xl mx-auto px-6">
-            {children}
-          </main>
-          <footer className="w-full">
-            <div className="mx-auto mt-16 flex max-w-3xl flex-wrap justify-between gap-x-6 gap-y-1 border-t border-foreground px-6 pb-10 pt-3.5 font-mono text-xs text-muted-foreground">
-              <span>polices système · images tramées</span>
-              <span>généré depuis Notion</span>
-            </div>
-          </footer>
+          <div className="flex min-w-0 flex-col px-6 md:pl-10">
+            <main id="main" className="flex-1">
+              {children}
+            </main>
+            <footer className="text-meta rule-r relative -mx-6 flex flex-wrap justify-between gap-x-6 px-6 py-3.5 font-mono text-muted-foreground md:-ml-10 md:pl-10">
+              <span>polices système · images tramées<span className="hidden sm:inline"> 32 couleurs</span></span>
+              <span><PageSize /> · généré le {new Date().toISOString().slice(0, 10)}</span>
+            </footer>
+          </div>
+        </div>
         </div>
       </body>
     </html>

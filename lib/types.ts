@@ -31,6 +31,12 @@ export type PageDefinition = {
   pageProperties?: string[];
   displayType?: "grid" | "list" | "list-compact";
   disableItemLinks?: boolean;
+  /** Shows the big title block on a top-level page (sub-pages always show theirs). */
+  showTitle?: boolean;
+  /** Shows "— N entrées" under a database. */
+  showEntryCount?: boolean;
+  /** Grid columns from `lg` up (default 3). */
+  columns?: number;
   featured?: FeaturedDefinition;
 };
 
@@ -45,6 +51,10 @@ export type FeaturedDefinition = {
   filter?: any;
   sorts?: any;
   limit?: number;
+  /** Grid columns from `lg` up (default 3). */
+  columns?: number;
+  /** Falls back to the source database's displayType, then "grid". */
+  displayType?: PageDefinition["displayType"];
 };
 
 export interface CleanData {

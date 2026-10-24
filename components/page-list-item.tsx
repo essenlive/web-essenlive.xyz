@@ -1,8 +1,8 @@
 import Link from "next/link"
-import Image from "next/image"
+import { CoverImage } from "@/components/cover-image"
 import { PageData } from "@/lib/notion"
 import { RenderProperties } from "@/components/notion/render-properties"
-import { cn } from "@/lib/utils"
+import { cn, datePrefix } from "@/lib/utils"
 
 interface PageListItemProps {
   page: PageData;
@@ -11,56 +11,61 @@ interface PageListItemProps {
 
 export function PageListItem({ page, variant = "default" }: PageListItemProps) {
   const isCompact = variant === "compact";
+  const date = datePrefix(page.properties, page.cardProperties);
+  const metaProperties = (page.cardProperties ?? Object.keys(page.properties ?? {})).filter((k) => k !== date?.key);
 
   const title = page.disableItemLinks ? (
-    <span className="font-semibold">{page.title}</span>
+    <span className="font-semibold" data-index data-prefix={date?.label}>{page.title}</span>
   ) : (
-    <Link href={page.path} className="font-semibold underline decoration-1 hover:text-highlight">
+    <Link href={page.path} prefetch={false} data-index data-prefix={date?.label} className="font-semibold underline decoration-1">
       {page.title}
     </Link>
   );
 
-  return (
-    <li
+  const thumb = page.cover && (
+    <div
       className={cn(
-        "flex items-center border-b border-border",
-        isCompact ? "gap-3 py-2.5" : "gap-4 py-4"
+        "dither relative shrink-0 overflow-hidden border border-foreground",
+        isCompact ? "h-8 w-8" : "h-24 w-32"
       )}
     >
-      {page.cover && (
-        <div
-          className={cn(
-            "relative shrink-0 overflow-hidden border border-foreground bg-muted",
-            isCompact ? "h-8 w-8" : "h-24 w-32"
-          )}
-        >
-          <Image
-            src={page.cover.url}
-            placeholder={page.cover.blurDataURL ? "blur" : undefined}
-            blurDataURL={page.cover.blurDataURL}
-            alt=""
-            fill
-            className="object-cover"
-            loading="lazy"
-            sizes={isCompact ? "32px" : "128px"}
-          />
+      <CoverImage
+        src={page.cover.url}
+        alt=""
+        fill
+        className="object-cover"
+        loading="lazy"
+        sizes={isCompact ? "32px" : "128px"}
+      />
+    </div>
+  );
+
+  const meta = page.properties && (
+    <RenderProperties
+      properties={page.properties}
+      filterProperties={metaProperties}
+    />
+  );
+
+  // Compact rows share the 16rem name column of the colophon table: titles left, metadata starting on one edge.
+  if (isCompact) {
+    return (
+      <li className="row rule-bd py-1.75 md:grid md:grid-cols-[40%_minmax(0,1fr)] md:items-baseline">
+        <div className="flex min-w-0 items-center gap-3.5 md:pr-6">
+          {thumb}
+          {title}
         </div>
-      )}
-      <div
-        className={cn(
-          "flex min-w-0 flex-1",
-          isCompact
-            ? "flex-wrap items-baseline justify-between gap-x-4 gap-y-0.5"
-            : "flex-col gap-1"
-        )}
-      >
+        {meta}
+      </li>
+    );
+  }
+
+  return (
+    <li className="row flex items-center gap-3.5 rule-bd py-3.5">
+      {thumb}
+      <div className="flex min-w-0 flex-1 flex-col gap-1.75">
         {title}
-        {page.properties && (
-          <RenderProperties
-            properties={page.properties}
-            filterProperties={page.cardProperties}
-          />
-        )}
+        {meta}
       </div>
     </li>
   );
