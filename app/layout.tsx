@@ -4,6 +4,11 @@ import { getSiteStructure } from "@/lib/notion";
 import { PageSize } from "@/components/page-size";
 import Script from "next/script";
 
+export function generateMetadata() {
+  const { sitename } = getSiteStructure();
+  return { title: { template: `%s · ${sitename}`, default: sitename } };
+}
+
 export default function RootLayout({
   children,
 }: {

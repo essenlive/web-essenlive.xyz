@@ -58,7 +58,7 @@ components:
 
 A single column of ink on paper. The site reads like a photocopied document: a warm paper ground (#F1EFE8), near-black type, hairline rules instead of boxes, and one red used the way a proofreader uses a pen. Austere and technical: nothing is decorated, everything is either text, a rule, or a dithered image. The lowtech ethos is the aesthetic, not a constraint on it: system fonts, no shadows, no gradients, no animation, no webfont download.
 
-Dithered images (32-color palette, Atkinson diffusion) are the one source of color and the main texture. The chrome carries only three monochrome, CSS-only textures: a dot trame on the rail, a diagonal hatch fading in under hovered list rows, and the 2x2 dither behind images and on cards without a cover. Nothing downloads.
+Dithered images (32-color palette, Atkinson diffusion) are the one source of color and the main texture. The chrome carries only one monochrome, CSS-only texture: the diagonal hatch (135°), on the rail, fading in under hovered list rows, behind images and on cards without a cover. Nothing downloads.
 
 This is deliberately not a generic SaaS / ShadCN default: no rounded cards, badges, soft shadows, or theme toggle.
 

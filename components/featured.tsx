@@ -6,7 +6,7 @@ import type { PageData, PageDefinition } from "@/lib/types";
 
 interface FeaturedProps {
   title?: string;
-  source: PageDefinition;
+  source?: PageDefinition;
   items: PageData[];
   displayType?: PageDefinition["displayType"];
   columns?: number;
@@ -14,7 +14,7 @@ interface FeaturedProps {
 
 export function Featured({ title, source, items, displayType, columns }: FeaturedProps) {
   if (items.length === 0) return null;
-  const type = displayType ?? source.displayType ?? "grid";
+  const type = displayType ?? source?.displayType ?? "grid";
 
   return (
     <section aria-labelledby="featured-title" className="mt-7">
@@ -22,9 +22,11 @@ export function Featured({ title, source, items, displayType, columns }: Feature
         <h2 id="featured-title" className="text-title font-bold">
           {title ?? "Sélection"}
         </h2>
-        <Link href={source.path} className="relative underline after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']">
-          tout voir →<span className="sr-only"> : {title ?? "Sélection"}</span>
-        </Link>
+        {source && (
+          <Link href={source.path} className="relative underline after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']">
+            tout voir →<span className="sr-only"> : {title ?? "Sélection"}</span>
+          </Link>
+        )}
       </div>
       {type === "grid" ? (
         <CellGrid count={items.length} columns={columns}>

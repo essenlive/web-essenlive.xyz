@@ -3,6 +3,7 @@ import { CoverImage } from "@/components/cover-image";
 import Link from "next/link";
 import { NotionRenderer } from "@/components/notion-renderer";
 import type { PageData, BlockWithChildren } from "@/lib/types";
+import { accentFromPalette } from "@/lib/utils";
 import { RenderProperties } from "@/components/notion/render-properties";
 
 
@@ -14,24 +15,10 @@ interface PageProps {
   parent?: { path: string; label: string }
 }
 
-const hostOf = (url: string) => {
-  try {
-    return new URL(url).host.replace(/^www\./, "");
-  } catch {
-    return url;
-  }
-};
-
 export function Page({ page, blocks, header, parent }: PageProps) {
   const hasHero = header && (page.cover || page.properties);
 
-  // Links (documentation, demo...) are the point of a project: set them apart from the mono metadata.
   const shown = page.pageProperties ?? Object.keys(page.properties ?? {});
-  const links = shown.flatMap((key) => {
-    const prop = page.properties?.[key];
-    return prop?.type === "url" && prop.value ? [{ key, href: prop.value as string }] : [];
-  });
-  const rest = shown.filter((key) => !links.some((l) => l.key === key));
 
   const heading = (
     <h1 className="title" title={page.title}>
@@ -45,19 +32,22 @@ export function Page({ page, blocks, header, parent }: PageProps) {
     </h1>
   );
 
+  // Duotone covers give the page one accent (selection, link hover, frames); other pages keep plain ink.
+  const accent = accentFromPalette(page.cover?.palette);
+
   return (
-    <article className="mt-14">
+    <article className={accent ? "accented mt-14" : "mt-14"} style={accent ? ({ "--accent": accent } as React.CSSProperties) : undefined}>
       {header && (
         <header className="mb-7">
           <div className={`band pb-7 ${hasHero ? "" : "border-b border-foreground"}`}>{heading}</div>
           {/* Hero: the cover takes the left half, the metadata the right half. */}
           {hasHero && (
-            <div className="band-flush grid border-y border-foreground md:grid-cols-2">
+            <div className="band-flush accent-border grid border-y border-foreground md:grid-cols-2">
               {page.cover && (
-                <div className="dither relative aspect-[3/2] border-b border-foreground md:border-b-0 md:border-r">
+                <div className="dither accent-border relative aspect-[3/2] border-b border-foreground md:border-b-0 md:border-r">
                   <CoverImage
                     src={page.cover.url}
-                    alt=""
+                    alt={page.title}
                     fill
                     className="object-cover"
                     priority
@@ -66,22 +56,11 @@ export function Page({ page, blocks, header, parent }: PageProps) {
               )}
               {page.properties && (
                 <aside className="min-w-0 px-[var(--bleed-l)] py-7 md:col-start-2 md:row-start-1 md:pl-7">
-                  {links.map(({ key, href }) => (
-                    <p key={key} className="m-0 mb-7 font-bold">
-                      <a href={href} target="_blank" rel="noopener noreferrer" className="underline">
-                        {key} → {hostOf(href)}
-                        <span className="sr-only"> (nouvel onglet)</span>
-                      </a>
-                    </p>
-                  ))}
-                  {rest.length > 0 && (
-                    <RenderProperties
-                      properties={page.properties}
-                      filterProperties={rest}
-                      pageLayout={true}
-                      className="[&_dd]:mb-3.5"
-                    />
-                  )}
+                  <RenderProperties
+                    properties={page.properties}
+                    filterProperties={shown}
+                    pageLayout={true}
+                  />
                 </aside>
               )}
             </div>

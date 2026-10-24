@@ -36,18 +36,24 @@ function propertyValue(propKey: string, propValue: CleanPageProperties[string]):
     case "url":
       return (
         <a href={propValue.value} target="_blank" rel="noopener noreferrer" className="underline break-all">
-          {urlHost(propValue.value)}
+          {urlHost(propValue.value)} →<span className="sr-only"> (nouvel onglet)</span>
         </a>
       );
 
     case "select":
     case "status":
-      return propValue.value.name;
-
-    case "multi_select":
-      return propValue.value.length > 0
-        ? propValue.value.map((item) => item.name).join(", ")
-        : null;
+    case "multi_select": {
+      const items = Array.isArray(propValue.value) ? propValue.value : [propValue.value];
+      return items.length > 0 ? (
+        <span className="inline-flex flex-wrap gap-1 align-middle">
+          {items.map((item) => (
+            <span key={item.name} className="dither accent-border border border-foreground px-1.5 leading-[1.25rem] lowercase text-foreground">
+              {item.name}
+            </span>
+          ))}
+        </span>
+      ) : null;
+    }
 
     case "number":
     case "place":
@@ -104,14 +110,14 @@ export function RenderProperties({
     return (
       <dl
         className={cn(
-          "grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)] gap-x-4 gap-y-1 text-meta font-mono",
+          "grid grid-cols-[minmax(0,7rem)_minmax(0,1fr)] items-baseline gap-x-4 gap-y-3.5 text-meta font-mono",
           className
         )}
       >
         {rendered.map(({ key, node }) => (
           <Fragment key={key}>
-            <dt className="text-muted-foreground lowercase">{key}</dt>
-            <dd className="m-0">{node}</dd>
+            <dt className="text-muted-foreground">{key}</dt>
+            <dd className="m-0 min-w-0">{node}</dd>
           </Fragment>
         ))}
       </dl>

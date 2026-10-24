@@ -209,6 +209,10 @@ export const getDefinedData = cache(async (): Promise<PageData[]> => {
           disableItemLinks: p.disableItemLinks,
           showTitle: p.showTitle,
           showEntryCount: p.showEntryCount,
+          showFilter: p.showFilter,
+          filterProperties: p.filterProperties,
+          showSearch: p.showSearch,
+          searchProperties: p.searchProperties,
           columns: p.columns,
           featured: p.featured,
           ...(await cleanData(p)),
@@ -397,39 +401,31 @@ export const getDatabaseItems = async (
 /**
  * Fetches the items to feature under a page
  *
- * Looks up the database declared at `featured.from` in the site structure and
- * queries it with its own filter AND the featured filter. Items keep the
- * database path, so they link to the same pages as in the database view.
+ * `featured.from` is the path of a database section; its filter is narrowed by
+ * `featured.filter`. Items keep the section's path, so they link to the same
+ * pages as its listing.
  *
  * @example
- * // SITE_DATA:
- * // "/": { "type": "page", "id": "…",
- * //        "featured": { "from": "/index", "title": "Sélection",
- * //                      "filter": { "property": "Sélection", "checkbox": { "equals": true } } } }
+ * // "/": { "type": "page", "id": "…", "featured": { "from": "/works", "title": "Sélection",
+ * //   "filter": { "property": "Sélection", "checkbox": { "equals": true } }, "limit": 3 } }
  */
 export const getFeaturedItems = async (
   featured: FeaturedDefinition
-): Promise<{ source: PageDefinition; items: PageData[] } | null> => {
+): Promise<{ source: PageDefinition; items: PageData[] }> => {
   const source = getSiteStructure().structure[featured.from];
-  if (!source || source.type !== "database") {
-    console.error(`Featured source "${featured.from}" is not a database of the site structure.`);
-    return null;
+  if (source?.type !== "database") {
+    throw new Error(`featured: "${featured.from}" is not a database section in SITE_DATA`);
   }
 
   const filters = [source.filter, featured.filter].filter(Boolean);
-  const filter =
-    filters.length === 0 ? undefined : filters.length === 1 ? filters[0] : { and: filters };
-
   const items = await getDatabaseItems({
     ...source,
-    filter,
+    filter: filters.length > 1 ? { and: filters } : filters[0],
     sorts: featured.sorts ?? source.sorts,
+    cardProperties: featured.cardProperties ?? source.cardProperties,
   });
 
-  return {
-    source,
-    items: featured.limit ? items.slice(0, featured.limit) : items,
-  };
+  return { source, items: featured.limit ? items.slice(0, featured.limit) : items };
 };
 
 /**

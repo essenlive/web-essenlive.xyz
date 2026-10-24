@@ -139,13 +139,13 @@ The `SITE_DATA` environment variable controls your entire site structure:
 }
 ```
 
-**Featured items under a page**: show a selection of a database (declared elsewhere in `structure`) below a page. `from` is the database path; `filter` is combined (AND) with the database's own filter.
+**Featured items under a page**: show a selection of a database below a page, with its own `filter` and `sorts`. If the database `id` is also declared in `structure`, items link to that section.
 ```json
 "/": {
   "type": "page",
   "id": "notion-page-id",
   "featured": {
-    "from": "/index",
+    "id": "notion-database-id",
     "title": "Sélection",
     "filter": {"property": "Sélection", "checkbox": {"equals": true}},
     "limit": 4

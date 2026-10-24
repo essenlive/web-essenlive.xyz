@@ -10,12 +10,7 @@ interface NavigationProps {
     path: string;
     title: string;
   }[];
-  socials?: {
-    mail?: string;
-    github?: string;
-    linkedin?: string;
-    instagram?: string;
-  };
+  socials?: { title: string; url: string }[];
 };
 
 /** Text links get a taller hit area without moving the layout. */
@@ -25,18 +20,13 @@ const linkHit = "relative after:absolute after:-inset-x-2 after:-inset-y-2 after
 const marker = "before:absolute before:-left-3.5 before:font-mono before:content-['›'] before:opacity-0 before:transition-[opacity,translate] before:duration-150 before:-translate-x-1 hover:before:translate-x-0 hover:before:opacity-100";
 const current = "before:translate-x-0 before:opacity-100";
 
-/** Accepts "me@example.com" or "mailto:me@example.com" */
-const mailHref = (mail: string) => (mail.startsWith("mailto:") ? mail : `mailto:${mail}`);
+/** A bare "me@example.com" becomes a mailto: link; anything with a scheme is kept. */
+const href = (url: string) => (/^[a-z][a-z\d+.-]*:/i.test(url) || !url.includes("@") ? url : `mailto:${url}`);
 
 export function Navigation({ sitename, navigation, socials }: NavigationProps) {
   const pathname = usePathname();
 
-  const links = [
-    socials?.github && { label: "github", href: socials.github },
-    socials?.linkedin && { label: "linkedin", href: socials.linkedin },
-    socials?.instagram && { label: "instagram", href: socials.instagram },
-    socials?.mail && { label: "mail", href: mailHref(socials.mail) },
-  ].filter((l): l is { label: string; href: string } => Boolean(l));
+  const links = (socials ?? []).filter((l) => l.title && l.url).map((l) => ({ label: l.title, href: href(l.url) }));
 
   return (
     <header className="bleed-l relative isolate pl-6 md:border-r md:border-foreground">

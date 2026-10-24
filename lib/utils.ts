@@ -3,6 +3,23 @@ import { twMerge } from "tailwind-merge"
 import type { CleanPageProperties } from "@/lib/types"
 
 
+const channel = (v: number) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; };
+const luminance = (rgb: number[]) => 0.2126 * channel(rgb[0]) + 0.7152 * channel(rgb[1]) + 0.0722 * channel(rgb[2]);
+
+/**
+ * Accent for a project page: the darker of a duotone cover's two colors,
+ * darkened until it reads on the paper ground (WCAG 4.5:1), so it is safe for text too.
+ * Returns undefined unless the palette is exactly [ink, paper] (duotone mode).
+ */
+export function accentFromPalette(palette?: string[], paper = [0xf1, 0xef, 0xe8]): string | undefined {
+  if (palette?.length !== 2) return undefined;
+  const rgbs = palette.map((h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)));
+  let ink = rgbs.sort((a, b) => luminance(a) - luminance(b))[0];
+  const ratio = (c: number[]) => (luminance(paper) + 0.05) / (luminance(c) + 0.05);
+  while (ratio(ink) < 4.5 && ink.some((v) => v > 0)) ink = ink.map((v) => Math.floor(v * 0.9));
+  return `rgb(${ink.join(" ")})`;
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -89,12 +106,4 @@ export function normalizeSiteStructureUUIDs<T extends Record<string, { id: strin
   }
 
   return normalizedStructure;
-}
-/** Label of the first date property shown on a card/row ("2026 fév"), and its key so callers can drop it from the meta line. */
-export function datePrefix(properties: CleanPageProperties | undefined, shown?: string[]) {
-  const key = (shown?.length ? shown : Object.keys(properties ?? {})).find((k) => {
-    const p = properties?.[k];
-    return p && p.type === "date" && p.value;
-  });
-  return key ? { key, label: formatDate(properties![key].value as Date) } : null;
 }

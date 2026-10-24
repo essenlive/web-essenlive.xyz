@@ -3,7 +3,8 @@ import {
   getPageContentWithChildren,
   getDatabaseItems,
   getPageByPath,
-  getFeaturedItems
+  getFeaturedItems,
+  getSiteStructure
 } from "@/lib/notion";
 import { Featured } from "@/components/featured";
 import { Page } from "@/components/notion/page";
@@ -18,7 +19,9 @@ export async function generateMetadata() {
   if (!pageData) {
     return { title: "Page Not Found" };
   }
-  return { ...pageData.metadata, title: pageData.label ?? pageData.metadata.title };
+  const desc = pageData.properties?.Description;
+  const description = desc?.type === "rich_text" && desc.value ? String(desc.value) : undefined;
+  return { ...pageData.metadata, title: { absolute: getSiteStructure().sitename }, description };
 }
 
 export default async function HomePage() {  

@@ -71,11 +71,15 @@
 }
 
 
-/* 2x2 ordered dither: placeholder behind images, and the face of cards without a cover. */
+/* Project accent: set as --accent on the page by components/notion/page.tsx from the cover's duotone ink. */
+.accent-border { border-color: var(--accent, var(--foreground)); }
+.accented ::selection { background: var(--accent); }
+.accented a:hover { text-decoration-color: var(--accent); }
+
+/* The one texture: diagonal hatch. Behind images, on cards without a cover, on the rail, under hovered rows. */
 @utility dither {
   background-color: var(--muted);
-  background-image: repeating-conic-gradient(var(--border) 0 25%, transparent 0 50%);
-  background-size: 4px 4px;
+  background-image: repeating-linear-gradient(135deg, var(--border) 0 1px, transparent 1px 6px);
 }
 
 /* Catalogue numbers: 01, 02... in front of titles inside an .index. */
@@ -85,7 +89,7 @@
 .index > * {
   counter-increment: n;
 }
-.index h3::before,
+.index :is(h2, h3)::before,
 .index [data-index]::before {
   content: counter(n, decimal-leading-zero) "\00a0\00a0";
   font-family: var(--font-mono);
@@ -94,15 +98,17 @@
   color: var(--muted-foreground);
 }
 
-.index h3[data-prefix]::before,
-.index [data-index][data-prefix]::before {
-  content: attr(data-prefix) "\00a0\00a0";
-}
 /* Chevron on the hovered entry. */
-.row:hover [data-index]::after,
-.cells > *:hover h3::after {
+/* Always laid out, only revealed on hover, so it never shifts the line. Linkless entries get none. */
+a[data-index]::after,
+.cells :is(h2, h3):has(a)::after {
   content: "\00a0›";
   font-family: var(--font-mono);
+  opacity: 0;
+}
+.row:hover a[data-index]::after,
+.cells > *:hover :is(h2, h3):has(a)::after {
+  opacity: 1;
 }
 
 @layer base {
@@ -131,6 +137,7 @@
     color: var(--background);
   }
   a:focus-visible,
+  button:focus-visible,
   summary:focus-visible {
     outline: 2px solid var(--foreground);
     outline-offset: 3px;
@@ -140,14 +147,14 @@
 
 /* Light textures and motion. Everything is CSS, nothing downloads. */
 
-/* Dot trame on the rail, running past the centred page to the viewport edge. */
+/* Hatch on the rail, running past the centred page to the viewport edge. */
 .bleed-l::before {
   content: "";
   position: absolute;
   inset-block: 0;
   z-index: -1;
-  background-image: radial-gradient(var(--border) 0.8px, transparent 1px);
-  background-size: 7px 7px;
+  background-image: repeating-linear-gradient(135deg, var(--border) 0 1px, transparent 1px 6px);
+  opacity: 0.8;
 }
 .bleed-l::before { right: 0; left: -100vw; }
 /* Ruled cell grid: cells run from the rail's line to the right edge; images fill the cell, text sits on the page's left edge. */
@@ -162,7 +169,7 @@
   padding: 0;
 }
 
-/* Page titles: one line, truncated rather than wrapped. */
+/* Page titles wrap (a long name is never cut); the padding keeps the breadcrumb link's hit area inside the clipped box. */
 .title {
   /* Vertical padding keeps the breadcrumb link's hit area inside the clipped box. */
   padding-block: 0.5rem;
@@ -173,8 +180,8 @@
   letter-spacing: -0.03em;
   max-width: 100%;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 @media (min-width: 48rem) {
   .title {
@@ -280,6 +287,10 @@
     font-size: var(--text-display-lg);
     line-height: var(--text-display-lg--line-height);
   }
+}
+.lead > div > h1:first-child,
+.lead > div > p:first-child {
+  font-family: var(--font-mono);
 }
 .lead > div > p:first-child {
   font-size: var(--text-title);

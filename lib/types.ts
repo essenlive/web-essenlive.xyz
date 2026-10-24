@@ -11,12 +11,8 @@ export type SiteData = {
     "/": PageDefinition;
     [key: string]: PageDefinition;
   };
-  socials?: {
-    mail?: string;
-    github?: string;
-    linkedin?: string;
-    instagram?: string;
-  };
+  /** Footer/nav links; a bare email address becomes a mailto: link. */
+  socials?: { title: string; url: string }[];
 };
 
 export type PageDefinition = {
@@ -35,25 +31,37 @@ export type PageDefinition = {
   showTitle?: boolean;
   /** Shows "— N entrées" under a database. */
   showEntryCount?: boolean;
+  /** Adds a tag filter bar (select/multi_select/status values) to the header. */
+  showFilter?: boolean;
+  /** Properties whose values become filter tags (default: cardProperties, else all). */
+  filterProperties?: string[];
+  /** Adds a text search input to the header. */
+  showSearch?: boolean;
+  /** Properties the search looks in, besides the title (default: cardProperties, else all). */
+  searchProperties?: string[];
   /** Grid columns from `lg` up (default 3). */
   columns?: number;
   featured?: FeaturedDefinition;
 };
 
 /**
- * Items of a database (declared elsewhere in the structure) shown under a page.
- * `from` is the structure path of that database, e.g. "/index".
- * `filter` is combined (AND) with the database's own filter.
+ * Items of a database section shown under a page. Items link to that section's
+ * pages and a "tout voir" link points to it.
  */
 export type FeaturedDefinition = {
+  /** Path of a database section in the structure, e.g. "/works". */
   from: string;
   title?: string;
+  /** Combined (AND) with the section's own filter. */
   filter?: any;
+  /** Replaces the section's sorts. */
   sorts?: any;
   limit?: number;
+  /** Replaces the section's cardProperties. */
+  cardProperties?: string[];
   /** Grid columns from `lg` up (default 3). */
   columns?: number;
-  /** Falls back to the source database's displayType, then "grid". */
+  /** Falls back to the section's displayType, then "grid". */
   displayType?: PageDefinition["displayType"];
 };
 
@@ -68,6 +76,10 @@ export interface CleanData {
     blurDataURL?: string;
     width?: number;
     height?: number;
+    /** Small file for cards and list rows; the hero is url. */
+    thumbnail?: string;
+    /** Dominant colors, hex, most frequent first; exactly two colors [ink, paper] (either order) when a slot is duotone. */
+    palette?: string[];
   }
   properties?: CleanPageProperties;
   metadata: Metadata;
