@@ -22,7 +22,12 @@ function propertyValue(propKey: string, propValue: CleanPageProperties[string]):
     case "checkbox":
       return propValue.value ? propKey : null;
 
-    case "date":
+    case "date": {
+      const start = formatDate(propValue.value);
+      const end = propValue.end && formatDate(propValue.end);
+      return end && end !== start ? `${start} → ${end}` : start;
+    }
+
     case "created_time":
     case "last_edited_time":
       return formatDate(propValue.value);

@@ -110,6 +110,7 @@ export interface CleanPageProperties {
     | {
         type: "date";
         value: Date;
+        end?: Date;
       }
     | {
         type: "email";

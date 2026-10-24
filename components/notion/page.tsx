@@ -25,7 +25,7 @@ export function Page({ page, blocks, header, parent }: PageProps) {
       {parent && (
         <>
           <Link href={parent.path} className="-my-2 inline-block py-2 font-normal text-muted-foreground">{parent.label}</Link>
-          <span aria-hidden className="font-normal text-muted-foreground"> / </span>
+          <span aria-hidden className="font-normal text-muted-foreground"> {">"} </span>
         </>
       )}
       {page.title}

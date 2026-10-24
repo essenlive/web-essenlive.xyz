@@ -952,12 +952,11 @@ function cleanProperties(properties:any): any {
         break;
 
       case "date":
-        // TO DO : Manage ranges
         if(!value?.start) break
-        value = new Date(value.start);
         properties[prop] = {
           type,
-          value,
+          value: new Date(value.start),
+          end: value.end ? new Date(value.end) : undefined,
         };
         break;
       case "multi_select":
