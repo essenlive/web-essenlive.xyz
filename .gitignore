@@ -37,3 +37,7 @@ public/workbox*
 
 # local images
 public/images/*
+
+# build cache / design tool output
+tsconfig.tsbuildinfo
+.impeccable/critique/
