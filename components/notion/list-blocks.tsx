@@ -1,24 +1,23 @@
 'use client'
 
 import React from 'react'
-import { CheckSquare, Square, ChevronRight } from 'lucide-react'
 import { RichText } from './rich-text'
 import { BlockWithChildren } from '@/lib/types'
 
-export function BulletedListItemBlock({ 
-  block, 
-  children, 
-  renderChildren 
-}: { 
-  block: any; 
+export function BulletedListItemBlock({
+  block,
+  children,
+  renderChildren
+}: {
+  block: any;
   children?: BlockWithChildren[];
   renderChildren?: (blocks: BlockWithChildren[]) => React.ReactNode;
 }) {
   return (
     <div className="space-y-2">
       <div className="flex items-start space-x-3 ml-4">
-        <span className="mt-2 h-1.5 w-1.5 bg-foreground rounded-full flex-shrink-0" />
-        <div className="flex-1 text-base text-foreground">
+        <span aria-hidden className="mt-[0.7em] h-1.5 w-1.5 bg-foreground flex-shrink-0" />
+        <div className="flex-1 text-body text-foreground">
           <RichText richText={block.rich_text} />
         </div>
       </div>
@@ -31,20 +30,23 @@ export function BulletedListItemBlock({
   )
 }
 
-export function NumberedListItemBlock({ 
-  block, 
-  children, 
-  renderChildren 
-}: { 
-  block: any; 
+export function NumberedListItemBlock({
+  block,
+  index = 1,
+  children,
+  renderChildren
+}: {
+  block: any;
+  /** 1-based position within the run of consecutive numbered items */
+  index?: number;
   children?: BlockWithChildren[];
   renderChildren?: (blocks: BlockWithChildren[]) => React.ReactNode;
 }) {
   return (
     <div className="space-y-2">
       <div className="flex items-start space-x-3 ml-4">
-        <span className="mt-0.5 text-base text-foreground font-medium min-w-[1.5rem]">1.</span>
-        <div className="flex-1 text-base text-foreground">
+        <span className="min-w-[1.5rem] font-mono text-meta text-muted-foreground">{index}.</span>
+        <div className="flex-1 text-body text-foreground">
           <RichText richText={block.rich_text} />
         </div>
       </div>
@@ -57,26 +59,28 @@ export function NumberedListItemBlock({
   )
 }
 
-export function TodoBlock({ 
-  block, 
-  children, 
-  renderChildren 
-}: { 
-  block: any; 
+export function TodoBlock({
+  block,
+  children,
+  renderChildren
+}: {
+  block: any;
   children?: BlockWithChildren[];
   renderChildren?: (blocks: BlockWithChildren[]) => React.ReactNode;
 }) {
   const isChecked = block.checked
-  
+
   return (
     <div className="space-y-2">
       <div className="flex items-start space-x-3">
-        {isChecked ? (
-          <CheckSquare className="h-5 w-5 mt-0.5 text-primary" />
-        ) : (
-          <Square className="h-5 w-5 mt-0.5 text-muted-foreground" />
-        )}
-        <div className={`flex-1 text-base ${isChecked ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+        <span
+          role="img"
+          aria-label={isChecked ? 'fait' : 'à faire'}
+          className="font-mono text-meta text-foreground"
+        >
+          {isChecked ? '[x]' : '[ ]'}
+        </span>
+        <div className={`flex-1 text-body ${isChecked ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
           <RichText richText={block.rich_text} />
         </div>
       </div>
@@ -89,30 +93,26 @@ export function TodoBlock({
   )
 }
 
-export function ToggleBlock({ 
-  block, 
-  children, 
-  renderChildren 
-}: { 
-  block: any; 
+export function ToggleBlock({
+  block,
+  children,
+  renderChildren
+}: {
+  block: any;
   children?: BlockWithChildren[];
   renderChildren?: (blocks: BlockWithChildren[]) => React.ReactNode;
 }) {
   return (
-    <details className="group my-4">
-      <summary className="cursor-pointer list-none">
-        <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted transition-colors">
-          <ChevronRight className="h-4 w-4 group-open:rotate-90 transition-transform text-muted-foreground" />
-          <span className="text-base font-medium text-foreground">
-            <RichText richText={block.rich_text} />
-          </span>
-        </div>
+    <details className="group my-4 border-y border-border">
+      <summary className="flex cursor-pointer list-none items-baseline gap-3 py-2.5 font-bold marker:content-none [&::-webkit-details-marker]:hidden">
+        <span aria-hidden className="font-mono text-meta text-muted-foreground before:content-['+'] group-open:before:content-['−']" />
+        <span><RichText richText={block.rich_text} /></span>
       </summary>
       {children && children.length > 0 && renderChildren && (
-        <div className="ml-6 mt-3 p-4 border-l-2 border-muted">
+        <div className="mb-3 ml-1.5 border-l border-border pb-1 pl-5">
           {renderChildren(children)}
         </div>
       )}
     </details>
   )
-} 
+}

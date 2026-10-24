@@ -1,3 +1,4 @@
+import { CellGrid } from "@/components/cell-grid";
 import { PageCard } from "@/components/page-card";
 import { PageListItem } from "@/components/page-list-item";
 import type { PageData } from "@/lib/types";
@@ -12,63 +13,55 @@ interface DatabaseProps {
 
 export function Database({ page, items, header }: DatabaseProps) {
   const displayType = page.displayType || "grid";
+  const title = page.label ?? (header ? page.title : page.path.split("/").pop());
 
   return (
-    <article className="mt-4">
-      {header && (
-        <header className="pb-0 space-y-4">
-          {/* Cover Image */}
-          {page.cover && (
-            <div className="relative h-[50vh] rounded-lg overflow-hidden border">
-              <Image
-                src={page.cover.url}
-                placeholder="blur"
-                blurDataURL={page.cover.blurDataURL}
-                alt={page.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
+    <article className={header || page.showEntryCount ? "mt-14" : undefined}>
+      {/* Title block (showTitle): label from the site structure, entry count on its baseline when enabled. */}
+      {header ? (
+        <header className="band flex flex-wrap items-baseline justify-between gap-x-7 gap-y-3.5 pb-7">
+          <h1 className="title">{title}</h1>
+          {page.showEntryCount && (
+            <p className="text-meta m-0 font-mono text-muted-foreground">{items.length}</p>
           )}
-
-          {/* Title */}
-          <div className="text-left space-y-2 top-0 bg-background z-10">
-            <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-              {page.icon && (
-                <span className="text-3xl md:text-4xl">{page.icon}</span>
-              )}
-              {page.title}
-            </h2>
-          </div>
         </header>
+      ) : (
+        page.showEntryCount && (
+          <p className="text-meta mb-3.5 font-mono text-muted-foreground">{items.length}</p>
+        )
+      )}
+      {header && page.cover && (
+        <div className="dither relative mb-7 aspect-[3/2] max-h-[60vh] w-full overflow-hidden border border-foreground">
+          <Image
+            src={page.cover.url}
+            alt=""
+            fill
+            className="object-cover"
+            priority
+          />
+        </div>
       )}
 
       {/* Grid View */}
       {displayType === "grid" && (
-        <div className="my-7 w-full grid gap-7 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+        <CellGrid count={items.length} columns={page.columns}>
           {items.map((item) => (
             <PageCard key={item.id} page={item} />
           ))}
-        </div>
+        </CellGrid>
       )}
 
-      {/* List View */}
-      {displayType === "list" && (
-        <div className="my-7 w-full flex flex-col gap-4">
+      {/* List views */}
+      {(displayType === "list" || displayType === "list-compact") && (
+        <ul className="index rule-t mb-7 list-none p-0">
           {items.map((item) => (
-            <PageListItem key={item.id} page={item} />
+            <PageListItem
+              key={item.id}
+              page={item}
+              variant={displayType === "list-compact" ? "compact" : "default"}
+            />
           ))}
-        </div>
-      )}
-
-      {/* Compact list View */}
-      {displayType === "list-compact" && (
-        <div className="my-7 w-full flex flex-col gap-4">
-          {items.map((item) => (
-            <PageListItem variant="compact" key={item.id} page={item} />
-          ))}
-        </div>
+        </ul>
       )}
     </article>
   );

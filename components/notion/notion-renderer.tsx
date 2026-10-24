@@ -1,9 +1,6 @@
 'use client'
 
 import { BlockObjectResponse } from '@/lib/types'
-import { Separator } from '@/components/ui/separator'
-import { Card, CardContent } from '@/components/ui/card'
-import { Quote, BarChart3 } from 'lucide-react'
 import { CodeHighlighter } from '../code'
 import { MermaidDiagram } from '../mermaid-diagram'
 import { RichText } from './rich-text'
@@ -31,14 +28,19 @@ export function NotionRenderer({ blocks }: NotionRendererProps) {
   // );
   return (
     <div className="space-y-4">
-      {blocks.map((block) => (
-        <BlockRenderer key={block.id} block={block} />
-      ))}
+      {blocks.map((block, i) => {
+        // Notion sends numbered items one by one; count the run of consecutive ones.
+        let number = 1
+        if (block.type === 'numbered_list_item') {
+          while (i - number >= 0 && blocks[i - number].type === 'numbered_list_item') number++
+        }
+        return <BlockRenderer key={block.id} block={block} number={number} />
+      })}
     </div>
   )
 }
 
-function BlockRenderer({ block }: { block: BlockWithChildren }) {
+function BlockRenderer({ block, number }: { block: BlockWithChildren; number: number }) {
   const { type } = block
 
   switch (type) {
@@ -66,6 +68,7 @@ function BlockRenderer({ block }: { block: BlockWithChildren }) {
       return (
         <NumberedListItemBlock
           block={block.numbered_list_item}
+          index={number}
           children={block.children}
         />
       );
@@ -86,7 +89,7 @@ function BlockRenderer({ block }: { block: BlockWithChildren }) {
       return <CalloutBlock block={block.callout} children={block.children} />;
 
     case "divider":
-      return <Separator className="my-8" />;
+      return <hr className="my-7 border-0 border-t border-foreground" />;
 
     case "image":
       return <ImageBlock block={block.image} />;
@@ -155,17 +158,9 @@ function CodeBlock({ block }: { block: any }) {
 
   if (isDiagram) {
     return (
-      <Card className="my-6">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-4 w-4" />
-            <span className="text-base font-medium">Diagram</span>
-          </div>
-          <div className="bg-background border rounded-lg p-4">
-            <MermaidDiagram chart={code} className="w-full" />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="my-6 border border-foreground p-4">
+        <MermaidDiagram chart={code} className="w-full" />
+      </div>
     )
   }
 
@@ -174,7 +169,7 @@ function CodeBlock({ block }: { block: any }) {
       <CodeHighlighter
         codeString={code}
         language={language}
-        className="rounded-lg border overflow-hidden"
+        className="border border-foreground overflow-hidden"
       />
     </div>
   )
@@ -182,121 +177,67 @@ function CodeBlock({ block }: { block: any }) {
 
 function QuoteBlock({ block }: { block: any }) {
   return (
-    <Card className="my-6">
-      <CardContent className="p-6">
-        <div className="flex items-start space-x-4">
-          <Quote className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-          <blockquote className="text-base italic text-foreground">
-            <RichText richText={block.rich_text} />
-          </blockquote>
-        </div>
-      </CardContent>
-    </Card>
+    <blockquote className="my-6 max-w-[40rem] border-l border-foreground pl-5 text-body italic text-foreground">
+      <RichText richText={block.rich_text} />
+    </blockquote>
   )
 }
 
 function CalloutBlock({ block, children }: { block: any; children?: BlockWithChildren[] }) {
-  const icon = block.icon
-  let emoji = '💡'
-  
-  if (icon?.type === 'emoji') {
-    emoji = icon.emoji
-  }
-  
+  const emoji = block.icon?.type === 'emoji' ? block.icon.emoji : null
+
   return (
-    <Card className="my-6 bg-muted/50">
-      <CardContent className="p-6">
-        <div className="flex items-start space-x-4">
-          <span className="text-2xl flex-shrink-0">{emoji}</span>
-          <div className="flex-1 space-y-3">
-            <div className="text-base text-foreground">
-              <RichText richText={block.rich_text} />
-            </div>
-            {children && children.length > 0 && (
-              <div>
-                <NotionRenderer blocks={children} />
-              </div>
-            )}
-          </div>
+    <div className="my-6 flex items-start gap-4 border border-foreground p-4">
+      {emoji && <span aria-hidden className="flex-shrink-0 text-title">{emoji}</span>}
+      <div className="min-w-0 flex-1 space-y-3 text-body text-foreground">
+        <div>
+          <RichText richText={block.rich_text} />
         </div>
-      </CardContent>
-    </Card>
+        {children && children.length > 0 && <NotionRenderer blocks={children} />}
+      </div>
+    </div>
+  )
+}
+
+/** Bookmark / link preview: a ruled line, kind in mono, the URL as a plain link. */
+function UrlRow({ kind, url }: { kind: string; url: string }) {
+  return (
+    <p className="my-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-y border-border py-3">
+      <span className="font-mono text-meta text-muted-foreground">{kind}</span>
+      <a href={url} target="_blank" rel="noopener noreferrer" className="min-w-0 break-all underline decoration-1">
+        {url}
+      </a>
+    </p>
   )
 }
 
 function BookmarkBlock({ block }: { block: any }) {
-  const url = block.url
-  
-  return (
-    <Card className="my-6">
-      <CardContent className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-base text-foreground">Bookmark</p>
-            <a 
-              href={url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline break-all"
-            >
-              {url}
-            </a>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
+  return <UrlRow kind="lien" url={block.url} />
 }
 
 function LinkPreviewBlock({ block }: { block: any }) {
-  const url = block.url
-  
-  return (
-    <Card className="my-6">
-      <CardContent className="p-6">
-        <div className="flex items-center space-x-4">
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-base text-foreground">Link Preview</p>
-            <a 
-              href={url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-sm text-primary hover:underline break-all"
-            >
-              {url}
-            </a>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  )
+  return <UrlRow kind="lien" url={block.url} />
 }
 
 function EmbedBlock({ block }: { block: any }) {
-  const url = block.url
-
   return (
-          <div className="w-full aspect-video rounded-lg overflow-hidden border bg-muted">
-            <iframe
-              src={url}
-              className="w-full h-full"
-              allowFullScreen
-              loading="lazy"
-              sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-              title="Embedded content"
-            />
-          </div>
+    <div className="my-6 w-full aspect-video overflow-hidden border border-foreground bg-muted">
+      <iframe
+        src={block.url}
+        className="w-full h-full"
+        allowFullScreen
+        loading="lazy"
+        sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+        title="Contenu intégré"
+      />
+    </div>
   )
 }
 
 function EquationBlock({ block }: { block: any }) {
-  const expression = block.expression
-  
   return (
-    <Card className="my-6 bg-muted">
-      <CardContent className="p-6 text-center">
-        <code className="text-lg font-mono text-foreground">{expression}</code>
-      </CardContent>
-    </Card>
+    <div className="my-6 overflow-x-auto bg-muted p-4 text-center">
+      <code className="font-mono text-title text-foreground">{block.expression}</code>
+    </div>
   )
-} 
+}

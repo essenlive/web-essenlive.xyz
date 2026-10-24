@@ -4,6 +4,7 @@ import {
   getPageContentWithChildren,
   getDatabaseItems,
   getAllData,
+  getSiteStructure,
 } from "@/lib/notion";
 import { Page } from "@/components/notion/page";
 import { Database } from "@/components/notion/database";
@@ -47,7 +48,7 @@ export async function generateMetadata({ params }: DynamicPageProps) {
   if (!pageData) {
     return { title: "Page Not Found" };
   }
-  return pageData.metadata;
+  return { ...pageData.metadata, title: pageData.label ?? pageData.metadata.title };
 }
 
 
@@ -62,14 +63,18 @@ export default async function DynamicPage({ params }: DynamicPageProps) {
   if (pageData.type === "database") {
     const items = await getDatabaseItems(pageData);
     return (
-      <Database page={pageData} items={items || []} header={slug.length > 1} />
+      <Database page={pageData} items={items || []} header={slug.length > 1 || !!pageData.showTitle} />
     );
   }
   
   // Handle single page view (/page-slug)
   else if ( pageData.type === "page") {
     const blocks = await getPageContentWithChildren(pageData);
-    return <Page page={pageData} blocks={blocks || []} header={slug.length > 1} />;
+    // The title doubles as a breadcrumb: the parent section links back.
+    const parentPath = slug.length > 1 ? `/${slug.slice(0, -1).join("/")}` : null;
+    const parentDef = parentPath ? Object.values(getSiteStructure().structure).find((p) => p.path === parentPath) : null;
+    const parent = parentPath ? { path: parentPath, label: parentDef?.label ?? parentPath.slice(1) } : undefined;
+    return <Page page={pageData} blocks={blocks || []} header={slug.length > 1 || !!pageData.showTitle} parent={parent} />;
   }
 
   // Handle error pages

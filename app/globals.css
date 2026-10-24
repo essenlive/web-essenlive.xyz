@@ -1,26 +1,27 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+/* Type scale, one baseline unit of 1.75rem: 13 mono meta, 17 body, 21 title, 28/36/48 display. */
+@theme {
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.3125rem;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.75rem;
+  --text-title: 1.3125rem;
+  --text-title--line-height: 1.75rem;
+  --text-display-sm: 1.5rem;
+  --text-display-sm--line-height: 1.75rem;
+  --text-display: 1.875rem;
+  --text-display--line-height: 2.625rem;
+  --text-display-lg: 2.5rem;
+  --text-display-lg--line-height: 3.5rem;
+}
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --font-sans: var(--font-system-sans);
+  --font-mono: var(--font-system-mono);
+  --color-highlight: var(--highlight);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -44,72 +45,64 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Low-tech: system fonts only, nothing to download */
+  --font-system-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-system-mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0rem;
+  --background: #F1EFE8;
+  --foreground: #1B1B1B;
+  --card: #F1EFE8;
+  --card-foreground: #1B1B1B;
+  --popover: #F1EFE8;
+  --popover-foreground: #1B1B1B;
+  --primary: #1B1B1B;
+  --primary-foreground: #F1EFE8;
+  --secondary: #E4E1D8;
+  --secondary-foreground: #1B1B1B;
+  --muted: #E4E1D8;
+  --muted-foreground: #57554F;
+  --accent: #E4E1D8;
+  --accent-foreground: #1B1B1B;
+  --highlight: #1B1B1B;
+  --destructive: #1B1B1B;
+  --border: #C9C5BA;
+  --input: #C9C5BA;
+  --ring: #57554F;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+
+/* 2x2 ordered dither: placeholder behind images, and the face of cards without a cover. */
+@utility dither {
+  background-color: var(--muted);
+  background-image: repeating-conic-gradient(var(--border) 0 25%, transparent 0 50%);
+  background-size: 4px 4px;
+}
+
+/* Catalogue numbers: 01, 02... in front of titles inside an .index. */
+.index {
+  counter-reset: n;
+}
+.index > * {
+  counter-increment: n;
+}
+.index h3::before,
+.index [data-index]::before {
+  content: counter(n, decimal-leading-zero) "\00a0\00a0";
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--muted-foreground);
+}
+
+.index h3[data-prefix]::before,
+.index [data-index][data-prefix]::before {
+  content: attr(data-prefix) "\00a0\00a0";
+}
+/* Chevron on the hovered entry. */
+.row:hover [data-index]::after,
+.cells > *:hover h3::after {
+  content: "\00a0›";
+  font-family: var(--font-mono);
 }
 
 @layer base {
@@ -118,6 +111,178 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
+    /* One baseline unit: 1.75rem. Mono meta is 3/4 of it, headings are 1 or 1.5 units. */
+    line-height: 1.75rem;
   }
+  a {
+    text-underline-offset: 3px;
+  }
+  a {
+    transition: text-decoration-color 120ms ease-out, text-decoration-thickness 120ms ease-out;
+  }
+  /* Hover: the underline thickens; no colour. */
+  a:hover {
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--highlight);
+  }
+  ::selection {
+    background: var(--highlight);
+    color: var(--background);
+  }
+  a:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 3px;
+  }
+}
+
+
+/* Light textures and motion. Everything is CSS, nothing downloads. */
+
+/* Dot trame on the rail, running past the centred page to the viewport edge. */
+.bleed-l::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  z-index: -1;
+  background-image: radial-gradient(var(--border) 0.8px, transparent 1px);
+  background-size: 7px 7px;
+}
+.bleed-l::before { right: 0; left: -100vw; }
+/* Ruled cell grid: cells run from the rail's line to the right edge; images fill the cell, text sits on the page's left edge. */
+.cells {
+  margin-left: calc(-1 * var(--bleed-l) - 1px);
+  margin-right: -1.5rem;
+}
+.cells > * {
+  background: var(--background);
+  border-top: 1px solid var(--foreground);
+  border-left: 1px solid var(--foreground);
+  padding: 0;
+}
+
+/* Page titles: one line, truncated rather than wrapped. */
+.title {
+  /* Vertical padding keeps the breadcrumb link's hit area inside the clipped box. */
+  padding-block: 0.5rem;
+  margin-block: -0.5rem;
+  font-size: var(--text-display-sm);
+  line-height: var(--text-display-sm--line-height);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (min-width: 48rem) {
+  .title {
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+  }
+}
+
+/* Full-bleed rules: from the rail's line to the right edge of the viewport. */
+:root { --bleed-l: 1.5rem; }
+@media (min-width: 48rem) {
+  :root { --bleed-l: 2.5rem; }
+}
+.rule-t,
+.rule-b,
+.rule-bd {
+  position: relative;
+}
+/* A block that runs from the rail's line to the right edge; .band keeps its content inset, .band-flush does not. */
+.band,
+.band-flush {
+  margin-inline: calc(-1 * var(--bleed-l)) -1.5rem;
+}
+.band {
+  padding-inline: var(--bleed-l) 1.5rem;
+}
+.rule-t::after,
+.rule-b::after,
+.rule-bd::after {
+  content: "";
+  position: absolute;
+  left: calc(-1 * var(--bleed-l));
+  right: -100vw;
+  pointer-events: none;
+}
+.rule-t::after { top: 0; border-top: 1px solid var(--foreground); }
+.rule-b::after { bottom: 0; border-bottom: 1px solid var(--foreground); }
+.rule-bd::after { bottom: 0; border-bottom: 1px dashed var(--border); }
+
+/* A full-bleed rule that meets the rail's line. */
+.rule-r::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: -100vw;
+  border-top: 1px solid var(--foreground);
+}
+
+/* List rows fade in a diagonal hatch under the pointer. */
+.row {
+  position: relative;
+  isolation: isolate;
+}
+.row::before {
+  content: "";
+  position: absolute;
+  inset: 0 -100vw 0 calc(-1 * var(--bleed-l));
+  z-index: -1;
+  opacity: 0;
+  background-image: repeating-linear-gradient(135deg, var(--border) 0 1px, transparent 1px 6px);
+  transition: opacity 150ms ease-out;
+}
+.row:hover::before {
+  opacity: 0.8;
+}
+
+/* Pages settle in once. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+.rise {
+  animation: rise 240ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
+
+
+/* Home: the first block of the page is its statement, a step above any other title. */
+/* A short H1 takes the big steps; a long opening paragraph only takes the title step, bold. */
+.lead > div > h1:first-child {
+  max-width: 40rem;
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+@media (min-width: 48rem) {
+  .lead > div > h1:first-child {
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+  }
+}
+.lead > div > p:first-child {
+  font-size: var(--text-title);
+  line-height: var(--text-title--line-height);
+  font-weight: 700;
 }

@@ -1,20 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
 import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { ThemeToggle } from "@/components/theme-toggle"
-import { buttonVariants } from "@/components/ui/button"
-import { Menu, Github, Mail, LucideLinkedin, LucideInstagram } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface NavigationProps {
@@ -31,186 +18,76 @@ interface NavigationProps {
   };
 };
 
+/** Text links get a taller hit area without moving the layout. */
+const linkHit = "relative after:absolute after:-inset-x-2 after:-inset-y-2 after:content-['']";
+
+/** The › marker hangs in the margin: always on for the current page, fades in on hover for the others. */
+const marker = "before:absolute before:-left-3.5 before:font-mono before:content-['›'] before:opacity-0 before:transition-[opacity,translate] before:duration-150 before:-translate-x-1 hover:before:translate-x-0 hover:before:opacity-100";
+const current = "before:translate-x-0 before:opacity-100";
+
+/** Accepts "me@example.com" or "mailto:me@example.com" */
+const mailHref = (mail: string) => (mail.startsWith("mailto:") ? mail : `mailto:${mail}`);
 
 export function Navigation({ sitename, navigation, socials }: NavigationProps) {
-  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
+  const links = [
+    socials?.github && { label: "github", href: socials.github },
+    socials?.linkedin && { label: "linkedin", href: socials.linkedin },
+    socials?.instagram && { label: "instagram", href: socials.instagram },
+    socials?.mail && { label: "mail", href: mailHref(socials.mail) },
+  ].filter((l): l is { label: string; href: string } => Boolean(l));
+
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <div className="max-w-4xl mx-auto flex h-16 items-center justify-between px-6">
-        {/* Logo */}
-        <div className="flex items-center space-x-10 font-semibold">
-          <Link href="/" className="flex items-center space-x-2 font-semibold">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight leading-tight">
-              {sitename}
-            </h1>
+    <header className="bleed-l relative isolate pl-6 md:border-r md:border-foreground">
+      {/* Mobile: a ruled strip on top. md+: a sticky margin rail down the left of the page. */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-4 border-b border-foreground pb-3.5 pt-7 md:sticky md:top-0 md:h-screen md:flex-col md:items-start md:justify-between md:border-b-0 md:pb-14 md:pr-6 md:pt-14">
+        <div className="flex flex-wrap items-baseline gap-x-6 gap-y-4 md:flex-col md:gap-x-0 md:gap-y-10">
+          <Link
+            href="/"
+            aria-current={pathname === "/" ? "page" : undefined}
+            className={cn(linkHit, marker, "font-bold no-underline md:text-title", pathname === "/" && current)}
+          >
+            {sitename || "essenlive.xyz"}
           </Link>
-          {navigation && (
-            <div className="hidden md:flex space-x-1">
+          {navigation && navigation.length > 0 && (
+            <nav aria-label="Pages" className="flex flex-wrap gap-x-5 gap-y-4 md:flex-col md:gap-y-2">
               {navigation.map((navItem) => {
                 const isActive = pathname === navItem.path || pathname.startsWith(navItem.path + '/');
                 return (
                   <Link
                     key={navItem.path}
                     href={navItem.path}
-                    className={cn(
-                      buttonVariants({ variant: "ghost" }),
-                      isActive && "bg-secondary font-semibold"
-                    )}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(linkHit, marker, "underline decoration-1 md:text-title", isActive && current)}
                   >
                     {navItem.title}
                   </Link>
                 );
               })}
-            </div>
+            </nav>
           )}
         </div>
-        {/* Right Side - Social Links + Theme Toggle */}
-        <div className="hidden md:flex items-center gap-2">
-          {/* Social Links */}
-          {socials?.github && (
-            <Link
-              href={socials?.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
-            >
-              <Github className="h-4 w-4" />
-            </Link>
-          )}
-          {socials?.linkedin && (
-            <Link
-              href={socials?.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
-            >
-              <LucideLinkedin className="h-4 w-4" />
-            </Link>
-          )}
-          {socials?.instagram && (
-            <Link
-              href={socials?.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
-            >
-              <LucideInstagram className="h-4 w-4" />
-            </Link>
-          )}
-          {socials?.mail && (
-            <Link
-              href={`mailto:${socials?.mail}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={cn(buttonVariants({ variant: "ghost", size: "icon" }))}
-            >
-              <Mail className="h-4 w-4" />
-            </Link>
-          )}
-
-          <ThemeToggle className={"ml-4"} />
-        </div>
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="md:hidden"
-              aria-label="Open navigation menu"
-            >
-              <Menu className="h-5 w-5" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-3/4 px-4">
-            <SheetHeader>
-              <SheetTitle className="text-2xl">{sitename}</SheetTitle>
-            </SheetHeader>
-            <div className="flex flex-col space-y-4 mt-8">
-              {navigation?.map((navItem) => {
-                const isActive = pathname === navItem.path || pathname.startsWith(navItem.path + '/');
-                return (
-                  <Link
-                    key={navItem.path}
-                    href={navItem.path}
-                    className={cn(
-                      buttonVariants({ variant: "ghost", size: "lg" }),
-                      "text-xl h-14",
-                      isActive && "bg-secondary font-semibold"
-                    )}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {navItem.title}
-                  </Link>
-                );
-              })}
-            </div>
-            <SheetFooter>
-              <div className="flex justify-between items-center mt-8 w-full">
-                {/* Social Links - Left */}
-                <div className="flex items-center gap-2">
-                  {socials?.github && (
-                    <Link
-                      href={socials?.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        buttonVariants({ variant: "ghost", size: "icon" }),
-                        "h-12 w-12"
-                      )}
-                    >
-                      <Github className="h-5 w-5" />
-                    </Link>
-                  )}
-                  {socials?.linkedin && (
-                    <Link
-                      href={socials?.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        buttonVariants({ variant: "ghost", size: "icon" }),
-                        "h-12 w-12"
-                      )}
-                    >
-                      <LucideLinkedin className="h-5 w-5" />
-                    </Link>
-                  )}
-                  {socials?.instagram && (
-                    <Link
-                      href={socials?.instagram}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        buttonVariants({ variant: "ghost", size: "icon" }),
-                        "h-12 w-12"
-                      )}
-                    >
-                      <LucideInstagram className="h-5 w-5" />
-                    </Link>
-                  )}
-                  {socials?.mail && (
-                    <Link
-                      href={socials?.mail}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={cn(
-                        buttonVariants({ variant: "ghost", size: "icon" }),
-                        "h-12 w-12"
-                      )}
-                    >
-                      <Mail className="h-5 w-5" />
-                    </Link>
-                  )}
-                </div>
-
-                {/* Theme Toggle - Right */}
-                <ThemeToggle />
-              </div>
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
+        {links.length > 0 && (
+          <div className="flex flex-wrap items-baseline gap-x-5 gap-y-4 text-meta font-mono md:flex-col md:gap-y-2">
+            {links.map((link) => {
+              const external = !link.href.startsWith("mailto:");
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target={external ? "_blank" : undefined}
+                  rel="noopener noreferrer"
+                  className={cn(linkHit, "underline decoration-1 after:-inset-y-3")}
+                >
+                  {link.label}
+                  {external && <span className="sr-only"> (nouvel onglet)</span>}
+                </a>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </nav>
+    </header>
   );
-} 
+}

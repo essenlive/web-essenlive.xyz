@@ -1,7 +1,8 @@
 import Link from "next/link"
-import Image from "next/image"
+import { CoverImage } from "@/components/cover-image"
 import { PageData } from "@/lib/notion"
 import { RenderProperties } from "@/components/notion/render-properties"
+import { cn, datePrefix } from "@/lib/utils"
 
 interface PageListItemProps {
   page: PageData;
@@ -10,80 +11,62 @@ interface PageListItemProps {
 
 export function PageListItem({ page, variant = "default" }: PageListItemProps) {
   const isCompact = variant === "compact";
+  const date = datePrefix(page.properties, page.cardProperties);
+  const metaProperties = (page.cardProperties ?? Object.keys(page.properties ?? {})).filter((k) => k !== date?.key);
 
-  const listContent = isCompact ? (
-    <div className="flex items-center gap-3 py-1.5 group">
-      {page.cover && (
-        <div className="relative w-8 h-8 shrink-0 overflow-hidden rounded">
-          <Image
-            src={page.cover.url}
-            placeholder={page.cover.blurDataURL ? "blur" : undefined}
-            blurDataURL={page.cover.blurDataURL}
-            alt={page.title}
-            fill
-            className="object-cover"
-            loading="lazy"
-            sizes="32px"
-          />
-        </div>
-      )}
-      <span className="text-sm font-medium line-clamp-1 group-hover:text-primary transition-colors">
-        {page.icon && <span className="mr-1.5">{page.icon}</span>}
-        {page.title}
-      </span>
-      {page.properties && (
-        <RenderProperties
-          properties={page.properties}
-          filterProperties={page.cardProperties}
-          className="gap-2 ml-auto shrink-0"
-          pageLayout
-        />
-      )}
-    </div>
+  const title = page.disableItemLinks ? (
+    <span className="font-semibold" data-index data-prefix={date?.label}>{page.title}</span>
   ) : (
-    <div className="flex gap-4 p-4 rounded-lg border bg-card hover:shadow-md transition-all duration-300 hover:border-primary/50 group">
-      {page.cover && (
-        <div className="relative w-32 h-24 shrink-0 overflow-hidden rounded-md">
-          <Image
-            src={page.cover.url}
-            placeholder={page.cover.blurDataURL ? "blur" : undefined}
-            blurDataURL={page.cover.blurDataURL}
-            alt={page.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-            sizes="128px"
-          />
-        </div>
+    <Link href={page.path} prefetch={false} data-index data-prefix={date?.label} className="font-semibold underline decoration-1">
+      {page.title}
+    </Link>
+  );
+
+  const thumb = page.cover && (
+    <div
+      className={cn(
+        "dither relative shrink-0 overflow-hidden border border-foreground",
+        isCompact ? "h-8 w-8" : "h-24 w-32"
       )}
-      <div className="flex-1 min-w-0 flex flex-col justify-center">
-        <h3 className="text-lg font-semibold mb-2 line-clamp-1 group-hover:text-primary transition-colors">
-          {page.icon && <span className="mr-2">{page.icon}</span>}
-          {page.title}
-        </h3>
-        {page.properties && (
-          <RenderProperties
-            properties={page.properties}
-            filterProperties={page.cardProperties}
-            className="gap-2"
-            pageLayout
-          />
-        )}
-      </div>
+    >
+      <CoverImage
+        src={page.cover.url}
+        alt=""
+        fill
+        className="object-cover"
+        loading="lazy"
+        sizes={isCompact ? "32px" : "128px"}
+      />
     </div>
   );
 
-  console.log(page.disableItemLinks);
-  
-  if (page.disableItemLinks) {
-    return <div className="block">{listContent}</div>;
+  const meta = page.properties && (
+    <RenderProperties
+      properties={page.properties}
+      filterProperties={metaProperties}
+    />
+  );
+
+  // Compact rows share the 16rem name column of the colophon table: titles left, metadata starting on one edge.
+  if (isCompact) {
+    return (
+      <li className="row rule-bd py-1.75 md:grid md:grid-cols-[40%_minmax(0,1fr)] md:items-baseline">
+        <div className="flex min-w-0 items-center gap-3.5 md:pr-6">
+          {thumb}
+          {title}
+        </div>
+        {meta}
+      </li>
+    );
   }
 
   return (
-    <Link href={page.path} className="block">
-      {listContent}
-    </Link>
+    <li className="row flex items-center gap-3.5 rule-bd py-3.5">
+      {thumb}
+      <div className="flex min-w-0 flex-1 flex-col gap-1.75">
+        {title}
+        {meta}
+      </div>
+    </li>
   );
 }
-
-

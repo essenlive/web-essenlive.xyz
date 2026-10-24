@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import type { CleanPageProperties } from "@/lib/types"
 
 
 export function cn(...inputs: ClassValue[]) {
@@ -9,12 +10,9 @@ export function cn(...inputs: ClassValue[]) {
 
   export function formatDate(date : Date) {
     const d = new Date(date);
-    // Use Intl.DateTimeFormat (en-GB) for day/month/year with short month, then lowercase month and strip leading zero
-    const formatted = d.toLocaleDateString('en-GB', {
-      month: 'short',
-      year: 'numeric',
-    });
-    return formatted
+    // Year then short month, in French (e.g. "2025 déc")
+    const month = d.toLocaleDateString('fr-FR', { month: 'short' }).replace('.', '');
+    return `${d.getFullYear()} ${month}`
   }
 
 /**
@@ -91,4 +89,12 @@ export function normalizeSiteStructureUUIDs<T extends Record<string, { id: strin
   }
 
   return normalizedStructure;
+}
+/** Label of the first date property shown on a card/row ("2026 fév"), and its key so callers can drop it from the meta line. */
+export function datePrefix(properties: CleanPageProperties | undefined, shown?: string[]) {
+  const key = (shown?.length ? shown : Object.keys(properties ?? {})).find((k) => {
+    const p = properties?.[k];
+    return p && p.type === "date" && p.value;
+  });
+  return key ? { key, label: formatDate(properties![key].value as Date) } : null;
 }

@@ -1,6 +1,6 @@
 import Link from "next/link"
-import Image from "next/image"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CoverImage } from "@/components/cover-image"
+import { datePrefix } from "@/lib/utils"
 import { PageData } from "@/lib/notion"
 import { RenderProperties } from "@/components/notion/render-properties"
 
@@ -9,55 +9,48 @@ interface PageCardProps {
 }
 
 export function PageCard({ page }: PageCardProps) {
-  const cardContent = (
-    <Card className="flex h-full flex-col group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1 pt-0">
-      {/* Cover Image */}
-      {page.cover && (
-        <div className="relative min-h-36 grow overflow-hidden">
-          <Image
-            src={page.cover.url}
-            placeholder="blur"
-            blurDataURL={page.cover.blurDataURL}
-            alt={page.title}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          />
-          {/* <div className="absolute inset-0 bg-linear-to-t from-background/60 to-transparent" /> */}
-        </div>
-      )}
+  // "Description" is shown as its own line, not folded into the mono meta line.
+  const desc = page.properties?.Description;
+  const summary = page.cardProperties?.includes("Description") && desc?.type === "rich_text" && desc.value
+    ? String(desc.value)
+    : null;
+  const date = datePrefix(page.properties, page.cardProperties);
+  const metaProperties = (page.cardProperties ?? Object.keys(page.properties ?? {})).filter((k) => k !== "Description" && k !== date?.key);
 
-      <CardHeader>
-        {/* Title */}
-        <CardTitle className="my-4 line-clamp-2 text-l leading-tight group-hover:text-primary transition-colors">
-          {page.icon && <span className="mr-2">{page.icon}</span>}
-          {page.title}
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-2">
-        {/* Display all properties */}
-        {page.properties && (
-          <>
-            <RenderProperties
-              properties={page.properties}
-              filterProperties={page.cardProperties}
-              className="gap-2"
-            />
-          </>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  if (page.disableItemLinks) {
-    return <div className="">{cardContent}</div>;
-  }
-
-  return (
-    <Link href={page.path} className="">
-      {cardContent}
+  // The title link is stretched over the whole card (after:inset-0), image included.
+  const title = page.disableItemLinks ? (
+    page.title
+  ) : (
+    <Link href={page.path} prefetch={false} className="underline decoration-1 after:absolute after:inset-0 group-hover:[text-decoration-thickness:3px] group-hover:decoration-highlight focus-visible:outline-none">
+      {page.title}
     </Link>
   );
-} 
+
+  return (
+    <article className="group relative flex min-w-0 flex-col has-[a:focus-visible]:outline-2 has-[a:focus-visible]:-outline-offset-4 has-[a:focus-visible]:outline-foreground">
+      {/* Same 4:3 frame for every card, flush with the cell; without a cover the dither is the picture. */}
+      <div className="dither relative aspect-[4/3] overflow-hidden border-b border-foreground">
+        {page.cover && (
+          <CoverImage
+            src={page.cover.url}
+            alt=""
+            fill
+            className="object-cover"
+            loading="lazy"
+            sizes="(max-width: 640px) 100vw, 33vw"
+          />
+        )}
+      </div>
+      <div className="flex flex-col gap-1.75 pb-7 pl-[var(--bleed-l)] pr-6 pt-3.5">
+        <h3 className="text-title font-bold" data-prefix={date?.label}>{title}</h3>
+        {summary && <p className="m-0 line-clamp-2 text-body">{summary}</p>}
+        {page.properties && (
+          <RenderProperties
+            properties={page.properties}
+            filterProperties={metaProperties}
+          />
+        )}
+      </div>
+    </article>
+  );
+}

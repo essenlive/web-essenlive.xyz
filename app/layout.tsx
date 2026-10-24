@@ -1,7 +1,7 @@
 import "./globals.css";
 import { Navigation } from "@/components/navigation";
-import { ThemeProvider } from "@/components/theme-provider";
 import { getSiteStructure } from "@/lib/notion";
+import { PageSize } from "@/components/page-size";
 import Script from "next/script";
 
 export default function RootLayout({
@@ -13,12 +13,12 @@ export default function RootLayout({
   const navigation = Object.values(structure)
     .filter((p) => p.path !== "/")
     .map((p) => ({
-      title: p.path.slice(1),
+      title: p.label ?? p.path.slice(1),
       path: p.path,
     }));
 
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
+    <html lang="fr">
       <body className="font-sans antialiased min-h-screen">
 
         {process.env.NODE_ENV !== "development" && (
@@ -30,23 +30,30 @@ export default function RootLayout({
           />
         )}
 
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
-          disableTransitionOnChange={false}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:border focus:border-foreground focus:bg-background focus:px-3 focus:py-2"
         >
-          <div className="relative flex min-h-screen flex-col bg-background text-foreground">
-            <Navigation
-              sitename={sitename}
-              socials={socials}
-              navigation={navigation}
-            />
-            <main className="flex-1 w-full max-w-4xl  mx-auto px-6">
+          Aller au contenu
+        </a>
+        <div className="overflow-x-clip">
+        <div className="relative grid min-h-screen w-full grid-rows-[auto_1fr] bg-background text-foreground md:grid-cols-[calc(15rem+50px)_minmax(0,1fr)] md:grid-rows-none">
+          <Navigation
+            sitename={sitename}
+            socials={socials}
+            navigation={navigation}
+          />
+          <div className="flex min-w-0 flex-col px-6 md:pl-10">
+            <main id="main" className="flex-1">
               {children}
             </main>
+            <footer className="text-meta rule-r relative -mx-6 flex flex-wrap justify-between gap-x-6 px-6 py-3.5 font-mono text-muted-foreground md:-ml-10 md:pl-10">
+              <span>polices système · images tramées<span className="hidden sm:inline"> 32 couleurs</span></span>
+              <span><PageSize /> · généré le {new Date().toISOString().slice(0, 10)}</span>
+            </footer>
           </div>
-        </ThemeProvider>
+        </div>
+        </div>
       </body>
     </html>
   );

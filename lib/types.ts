@@ -23,12 +23,38 @@ export type PageDefinition = {
   type: "page" | "database";
   id: string;
   path: "/" | string;
+  /** Navigation label; falls back to the path without its slash. */
+  label?: string;
   filter?: any;
   sorts?: any;
   cardProperties?: string[];
   pageProperties?: string[];
   displayType?: "grid" | "list" | "list-compact";
   disableItemLinks?: boolean;
+  /** Shows the big title block on a top-level page (sub-pages always show theirs). */
+  showTitle?: boolean;
+  /** Shows "— N entrées" under a database. */
+  showEntryCount?: boolean;
+  /** Grid columns from `lg` up (default 3). */
+  columns?: number;
+  featured?: FeaturedDefinition;
+};
+
+/**
+ * Items of a database (declared elsewhere in the structure) shown under a page.
+ * `from` is the structure path of that database, e.g. "/index".
+ * `filter` is combined (AND) with the database's own filter.
+ */
+export type FeaturedDefinition = {
+  from: string;
+  title?: string;
+  filter?: any;
+  sorts?: any;
+  limit?: number;
+  /** Grid columns from `lg` up (default 3). */
+  columns?: number;
+  /** Falls back to the source database's displayType, then "grid". */
+  displayType?: PageDefinition["displayType"];
 };
 
 export interface CleanData {
@@ -40,6 +66,8 @@ export interface CleanData {
   cover?: {
     url : string;
     blurDataURL?: string;
+    width?: number;
+    height?: number;
   }
   properties?: CleanPageProperties;
   metadata: Metadata;
