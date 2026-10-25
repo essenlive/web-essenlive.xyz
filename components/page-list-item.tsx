@@ -14,9 +14,9 @@ export function PageListItem({ page, variant = "default" }: PageListItemProps) {
 
   const row = page.disableItemLinks ? "" : "row";
   const title = page.disableItemLinks ? (
-    <span className="font-semibold" data-index>{page.title}</span>
+    <span className="hang font-semibold" data-index>{page.title}</span>
   ) : (
-    <Link href={page.path} prefetch={false} data-index className="font-semibold underline decoration-1">
+    <Link href={page.path} prefetch={false} data-index className="hang font-semibold underline decoration-1">
       {page.title}
     </Link>
   );

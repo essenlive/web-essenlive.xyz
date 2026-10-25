@@ -63,7 +63,7 @@ Dithered images (32-color palette, Atkinson diffusion) are the one source of col
 This is deliberately not a generic SaaS / ShadCN default: no rounded cards, badges, soft shadows, or theme toggle.
 
 **Key Characteristics:**
-- Light only; paper and ink, one accent.
+- Paper and ink, one accent; dark palette follows `prefers-color-scheme`, no toggle.
 - Zero radius, zero shadow; structure comes from 1px rules and underlines.
 - System sans for reading, system mono for metadata.
 - Links are underlined text, never buttons.
@@ -88,7 +88,7 @@ A monochrome palette of warm paper and ink; vermilion stays in the tokens as a r
 ### Named Rules
 **The Red Is A Pen Rule.** Vermilion, if it comes back, is a pen: hover underline or errors only. It is never a fill, never a heading color.
 
-**The No Dark Mode Rule.** One palette. No toggle, no `.dark` variants in new work.
+**The No Toggle Rule.** Dark follows the browser (`prefers-color-scheme`). No toggle, no `.dark` class variants.
 
 ## Typography
 
@@ -154,7 +154,7 @@ Hard right angles everywhere (`--radius: 0`). Frames are 1px ink borders around 
 
 ### Don't:
 - **Don't** use rounded corners, shadows, gradients, blur, or badges (the generic SaaS / ShadCN default look).
-- **Don't** add a dark mode or theme toggle.
+- **Don't** add a theme toggle.
 - **Don't** use Vermilion for fills, headings, or decoration.
 - **Don't** download webfonts.
 - **Don't** hard-code content that belongs in Notion.

@@ -28,7 +28,7 @@ Notion is the headless CMS. Routes and sections are declared in the `SITE_DATA` 
 - Images are dithered against an extracted 32-color palette (own Atkinson diffusion in `lib/imageProcessor.ts`) and served as-is, with no next/image re-encoding.
 - Lowtech: keep payloads small; avoid heavy client JS and animation where avoidable.
 - Mermaid diagrams are supported in content.
-- Light-only currently (theme toggle and dark palette were removed); not declared a binding commitment.
+- Dark palette follows the browser (`prefers-color-scheme`); no toggle.
 
 ## Brand Commitments
 
