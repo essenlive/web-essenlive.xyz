@@ -2,6 +2,7 @@ import "./globals.css";
 import { Navigation } from "@/components/navigation";
 import { getSiteStructure } from "@/lib/notion";
 import { PageSize } from "@/components/page-size";
+import { RedeployButton } from "@/components/redeploy-button";
 import Script from "next/script";
 
 export function generateMetadata() {
@@ -54,7 +55,7 @@ export default function RootLayout({
             </main>
             <footer className="text-meta rule-r relative -mx-6 flex flex-wrap justify-between gap-x-6 px-6 py-3.5 font-mono text-muted-foreground md:-ml-10 md:pl-10">
               <span>polices système · images tramées<span className="hidden sm:inline"> 32 couleurs</span></span>
-              <span><PageSize /> · généré le {new Date().toISOString().slice(0, 10)}</span>
+              <span><PageSize /> · <RedeployButton date={new Date().toISOString().slice(0, 10)} /></span>
             </footer>
           </div>
         </div>

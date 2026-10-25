@@ -30,6 +30,7 @@ Set in `.env.local` (edit via `/dev-env`; restart dev server after changes). `.e
 - `SITE_DATA` (required) — JSON, see below.
 - `IMAGES_PROCESS` — JSON `{"thumbnail": "...", "hero": "..."}` with `dithering` | `duotone` | `webp` per slot (default `webp`). The process is part of the cached file name, so switching never serves stale files; old files can be deleted.
 - `NEXT_PUBLIC_ANALYTICS_SERVER_URL`, `NEXT_PUBLIC_ANALYTICS_ID` — analytics `<script>` (`{url}/script.js`, `data-website-id`) injected in `app/layout.tsx`, non-development only.
+- `NETLIFY_BUILD_HOOK` — Netlify build hook URL; the footer build date is a secret button that POSTs to it (server action, [lib/redeploy.ts](lib/redeploy.ts)).
 - `ANALYZE` — `"true"` enables the bundle analyzer (set by `npm run analyze`).
 
 ### `SITE_DATA` shape (types in [lib/types.ts](lib/types.ts))
