@@ -10,14 +10,14 @@ function blockUrl(block: any): string {
 }
 
 /** Low-tech: a ruled line with a mono kind, a name and a plain link. */
-function LinkRow({ kind, name, url, action }: { kind: string; name: string; url: string; action: string }) {
+function LinkRow({ kind, name, url }: { kind: string; name?: string; url: string }) {
   return (
     <p className="my-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-y border-border py-3">
       <span className="font-mono text-meta text-muted-foreground">{kind}</span>
-      <span className="font-bold">{name}</span>
+      {name && <span className="font-bold">{name}</span>}
       {url && (
         <a href={url} target="_blank" rel="noopener noreferrer" className="underline decoration-1">
-          {action}
+          →
         </a>
       )}
     </p>
@@ -57,15 +57,15 @@ export function ImageBlock({ block }: { block: any }) {
 
 export function VideoBlock({ block }: { block: any }) {
   const t = useTexts()
-  return <LinkRow kind={t.videoKind} name={t.videoName} url={blockUrl(block)} action={t.videoAction} />
+  return <LinkRow kind={t.video} url={blockUrl(block)} />
 }
 
 export function AudioBlock({ block }: { block: any }) {
   const t = useTexts()
-  return <LinkRow kind={t.audioKind} name={t.audioName} url={blockUrl(block)} action={t.audioAction} />
+  return <LinkRow kind={t.audio} url={blockUrl(block)} />
 }
 
 export function FileBlock({ block }: { block: any }) {
   const t = useTexts()
-  return <LinkRow kind={t.fileKind} name={block.name || t.fileName} url={blockUrl(block)} action={t.fileAction} />
+  return <LinkRow kind={t.file} name={block.name} url={blockUrl(block)} />
 }

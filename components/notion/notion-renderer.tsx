@@ -202,7 +202,7 @@ function CalloutBlock({ block, children }: { block: any; children?: BlockWithChi
 
 /** Bookmark / link preview: a ruled line, kind in mono, the URL as a plain link. */
 function UrlRow({ url }: { url: string }) {
-  const kind = useTexts().linkKind
+  const kind = useTexts().link
   return (
     <p className="my-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-y border-border py-3">
       <span className="font-mono text-meta text-muted-foreground">{kind}</span>
@@ -231,7 +231,7 @@ function EmbedBlock({ block }: { block: any }) {
         allowFullScreen
         loading="lazy"
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-        title={texts.embedTitle}
+        title={texts.link}
       />
     </div>
   )

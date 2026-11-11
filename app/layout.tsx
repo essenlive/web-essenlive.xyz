@@ -42,7 +42,7 @@ export default function RootLayout({
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:border focus:border-foreground focus:bg-background focus:px-3 focus:py-2"
         >
-          {texts.skipLink}
+          {texts.skip}
         </a>
         <TextsProvider texts={texts}>
         <div className="overflow-x-clip">
@@ -57,7 +57,7 @@ export default function RootLayout({
               {children}
             </main>
             <footer className="text-meta rule-r relative -mx-6 flex flex-wrap justify-between gap-x-6 px-6 py-3.5 font-mono text-muted-foreground md:-ml-10 md:pl-10">
-              <span>{texts.footer}{texts.footerExtra && <span className="hidden sm:inline"> {texts.footerExtra}</span>}</span>
+              <span>{texts.footer}</span>
               <span><PageSize /> · <RedeployButton date={new Date().toISOString().slice(0, 10)} /></span>
             </footer>
           </div>

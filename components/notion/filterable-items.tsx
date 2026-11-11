@@ -24,8 +24,8 @@ export function SearchInput() {
       type="search"
       value={q}
       onChange={(e) => setQ(e.target.value)}
-      placeholder={texts.searchPlaceholder}
-      aria-label={texts.searchLabel}
+      placeholder={texts.search}
+      aria-label={texts.search}
       className="text-meta min-w-32 border border-foreground bg-transparent px-2 py-0.5 font-mono"
     />
   );
@@ -39,7 +39,7 @@ export function FilterTags({ tags }: { tags: string[] }) {
   return (
     <ul className="text-meta m-0 flex list-none flex-wrap gap-x-3.5 gap-y-1 p-0 font-mono">
       <li>
-        <button type="button" aria-pressed={!on.length} onClick={clear} className={`${btn} aria-pressed:font-bold aria-pressed:underline`}>{texts.filterAll}</button>
+        <button type="button" aria-pressed={!on.length} onClick={clear} className={`${btn} aria-pressed:font-bold aria-pressed:underline`}>{texts.all}</button>
       </li>
       {tags.map((t) => (
         <li key={t}>
@@ -65,7 +65,7 @@ export function FilterableItems({ entries, list, columns }: { entries: FilterEnt
   return (
     <>
       <p aria-live="polite" className="text-meta m-0 mb-3.5 font-mono text-muted-foreground">
-        {shown.length === 0 ? texts.noResults : shown.length < entries.length ? fill(texts.resultCount, { shown: shown.length, total: entries.length }) : null}
+        {shown.length === 0 ? texts.none : shown.length < entries.length ? fill(texts.count, { shown: shown.length, total: entries.length }) : null}
       </p>
       {list ? (
         <ul className="index rule-t mb-7 list-none p-0">{nodes}</ul>

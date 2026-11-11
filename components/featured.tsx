@@ -3,7 +3,6 @@ import { CellGrid } from "@/components/cell-grid";
 import { PageCard } from "@/components/page-card";
 import { PageListItem } from "@/components/page-list-item";
 import type { PageData, PageDefinition } from "@/lib/types";
-import type { SiteTexts } from "@/lib/site-config";
 
 interface FeaturedProps {
   title?: string;
@@ -11,12 +10,11 @@ interface FeaturedProps {
   items: PageData[];
   displayType?: PageDefinition["displayType"];
   columns?: number;
-  texts: Pick<SiteTexts, "featuredTitle" | "seeAll">;
 }
 
-export function Featured({ title, source, items, displayType, columns, texts }: FeaturedProps) {
+export function Featured({ title, source, items, displayType, columns }: FeaturedProps) {
   if (items.length === 0) return null;
-  const heading = title ?? texts.featuredTitle;
+  const heading = title ?? source?.label ?? source?.path.slice(1) ?? "";
   const type = displayType ?? source?.displayType ?? "grid";
 
   return (
@@ -27,7 +25,7 @@ export function Featured({ title, source, items, displayType, columns, texts }: 
         </h2>
         {source && (
           <Link href={source.path} className="relative underline after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']">
-            {texts.seeAll}<span className="sr-only"> : {heading}</span>
+            {source.label ?? source.path.slice(1)} →
           </Link>
         )}
       </div>

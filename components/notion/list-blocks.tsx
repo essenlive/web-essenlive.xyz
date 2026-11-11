@@ -77,7 +77,7 @@ export function TodoBlock({
       <div className="flex items-start space-x-3">
         <span
           role="img"
-          aria-label={isChecked ? texts.checkboxDone : texts.checkboxTodo}
+          aria-label={isChecked ? texts.done : texts.todo}
           className="font-mono text-meta text-foreground"
         >
           {isChecked ? '[x]' : '[ ]'}

@@ -60,7 +60,6 @@ A single column of ink on paper. The site reads like a photocopied document: a w
 
 Dithered images (32-color palette, Atkinson diffusion) are the one source of color and the main texture. The chrome carries only one monochrome, CSS-only texture: the diagonal hatch (135°), on the rail, fading in under hovered list rows, behind images and on cards without a cover. Nothing downloads.
 
-The one animated exception is the dither field (Magic UI `DitherField`, WebGL): bands of 1px square Bayer-dithered dots in the ink colour (`var(--foreground)`, so it follows the dark palette) on the home, section, item and 404 pages, and in the frame of cards without a cover. It is configured from `SITE_DATA.ditherField` (`speed: 0` holds a still frame, `false` turns a zone off) and respects `prefers-reduced-motion`.
 
 This is deliberately not a generic SaaS / ShadCN default: no rounded cards, badges, soft shadows, or theme toggle.
 

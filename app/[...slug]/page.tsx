@@ -6,10 +6,8 @@ import {
   getAllData,
   getSiteStructure,
   getTexts,
-  getDither,
 } from "@/lib/notion";
 import { TextsProvider } from "@/components/site-texts";
-import { DitherZone } from "@/components/dither-zone";
 import { Page } from "@/components/notion/page";
 import { Database } from "@/components/notion/database";
 
@@ -50,7 +48,7 @@ export async function generateMetadata({ params }: DynamicPageProps) {
   const pageData = await getPageByPath(`/${slug.join("/")}`);
 
   if (!pageData) {
-    return { title: getTexts().pageNotFoundTitle };
+    return { title: getTexts().notFound };
   }
   const desc = pageData.properties?.Description;
   const description = desc?.type === "rich_text" && desc.value ? String(desc.value) : undefined;
@@ -66,20 +64,13 @@ export default async function DynamicPage({ params }: DynamicPageProps) {
   if (!pageData) { notFound();}
 
   const texts = getTexts(pageData);
-  // Top-level sections can override their own band; pages below them (database items) use the `items` zone.
-  const dither = slug.length > 1 ? getDither("items") : getDither("sections", pageData.ditherField?.header);
-  const band = dither && <DitherZone options={dither} className="mt-14" />;
-  const body = dither ? "[&>article]:mt-7" : undefined;
 
   // Handle database list view (/category)
   if (pageData.type === "database") {
     const items = await getDatabaseItems(pageData);
     return (
       <TextsProvider texts={texts}>
-        {band}
-        <div className={body}>
-          <Database page={pageData} items={items || []} header={slug.length > 1 || !!pageData.showTitle} />
-        </div>
+        <Database page={pageData} items={items || []} header={slug.length > 1 || !!pageData.showTitle} />
       </TextsProvider>
     );
   }
@@ -93,10 +84,7 @@ export default async function DynamicPage({ params }: DynamicPageProps) {
     const parent = parentPath ? { path: parentPath, label: parentDef?.label ?? parentPath.slice(1) } : undefined;
     return (
       <TextsProvider texts={texts}>
-        {band}
-        <div className={body}>
-          <Page page={pageData} blocks={blocks || []} header={slug.length > 1 || !!pageData.showTitle} parent={parent} />
-        </div>
+        <Page page={pageData} blocks={blocks || []} header={slug.length > 1 || !!pageData.showTitle} parent={parent} />
       </TextsProvider>
     );
   }

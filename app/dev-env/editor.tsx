@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DEFAULT_TEXTS, DITHER_PATTERNS } from "@/lib/site-config";
+import { DEFAULT_TEXTS } from "@/lib/site-config";
 
 type Line = { raw: string } | { key: string; value: string; quote: string };
 type Obj = Record<string, any>;
@@ -61,42 +61,6 @@ function Lazy<T>({ label, value, onChange, toText, fromText, rows }: {
         <input className={box} value={text} onChange={(e) => change(e.target.value)} />
       )}
     </Field>
-  );
-}
-
-// dither-field: off / defaults / custom, for one zone.
-function Dither({ label, value, onChange }: { label: string; value: unknown; onChange: (v: unknown) => void }) {
-  const mode = value === false ? "off" : value && typeof value === "object" && Object.keys(value).length ? "custom" : "default";
-  const o = (value && typeof value === "object" ? value : {}) as Obj;
-  const set = (k: string, v: unknown) => onChange(clean({ ...o, [k]: v }));
-  const num = (k: string, l: string) => <Text label={l} type="number" value={o[k]?.toString()} onChange={(v) => set(k, v === "" ? undefined : Number(v))} />;
-  return (
-    <fieldset className="grid gap-3 border border-foreground p-3 md:grid-cols-2">
-      <legend className="px-1 text-sm">{label}</legend>
-      <Field label="Effet">
-        <select className={box} value={mode} onChange={(e) => onChange(e.target.value === "off" ? false : e.target.value === "custom" ? { pattern: "horizon" } : undefined)}>
-          <option value="default">défaut</option><option value="custom">personnalisé</option><option value="off">désactivé</option>
-        </select>
-      </Field>
-      {mode === "custom" && (
-        <>
-          <Field label="pattern">
-            <select className={box} value={o.pattern ?? ""} onChange={(e) => set("pattern", e.target.value || undefined)}>
-              <option value="">(selon la zone)</option>{DITHER_PATTERNS.map((p) => <option key={p}>{p}</option>)}
-            </select>
-          </Field>
-          <Text label="src (image ou vidéo, remplace le pattern)" value={o.src} onChange={(v) => set("src", v)} />
-          <Text label="color (CSS, défaut var(--foreground))" value={typeof o.color === "string" ? o.color : undefined} onChange={(v) => set("color", v)} />
-          <Text label="height (bandeaux, ex. 12rem)" value={o.height} onChange={(v) => set("height", v)} />
-          {num("dotSize", "dotSize (px)")}{num("intensity", "intensity (défaut 0.75)")}{num("speed", "speed (0 = image fixe)")}{num("fps", "fps")}
-          <Field label="interactive (lueur au pointeur)">
-            <select className={box} value={o.interactive === undefined ? "" : String(o.interactive)} onChange={(e) => set("interactive", e.target.value === "" ? undefined : e.target.value === "true")}>
-              <option value="">(selon la zone)</option><option>true</option><option>false</option>
-            </select>
-          </Field>
-        </>
-      )}
-    </fieldset>
   );
 }
 
@@ -344,10 +308,6 @@ function PageEditor({ path, def, databases, onChange, onRename, onRemove }: {
         </Field>
         <Text label="ID Notion" value={def.id} onChange={(v) => set("id", v)} />
         <Text label="Label de navigation" value={def.label} onChange={(v) => set("label", v)} />
-        <Dither label="dither-field : bandeau de la page" value={def.ditherField?.header} onChange={(v) => set("ditherField", clean({ ...def.ditherField, header: v }))} />
-        {def.type === "database" && (
-          <Dither label="dither-field : cartes sans cover" value={def.ditherField?.cards} onChange={(v) => set("ditherField", clean({ ...def.ditherField, cards: v }))} />
-        )}
         <Texts label="texts (surcharges pour cette section)" value={def.texts} onChange={(v) => set("texts", v)} />
         <label className="flex items-center gap-2 self-end">
           <input type="checkbox" checked={!!def.showTitle} onChange={(e) => set("showTitle", e.target.checked || undefined)} />
@@ -367,7 +327,7 @@ function PageEditor({ path, def, databases, onChange, onRename, onRemove }: {
             </label>
             <label className="flex items-center gap-2 self-end">
               <input type="checkbox" checked={!!def.showEntryCount} onChange={(e) => set("showEntryCount", e.target.checked || undefined)} />
-              Afficher le nombre d'entrées
+              Afficher le nombre d&apos;entrées
             </label>
             <label className="flex items-center gap-2 self-end">
               <input type="checkbox" checked={!!def.showFilter} onChange={(e) => set("showFilter", e.target.checked || undefined)} />
@@ -441,12 +401,6 @@ function SiteData({ value, onChange }: { value: string; onChange: (v: string) =>
         <Text label="sitename" value={data.sitename} onChange={(v) => set("sitename", v)} />
         <Text label="lang (défaut fr)" value={data.lang} onChange={(v) => set("lang", v)} />
       </div>
-      <fieldset className="grid gap-3 border border-foreground p-3 md:grid-cols-2">
-        <legend className="px-1 text-sm">ditherField (toutes les zones actives par défaut)</legend>
-        {([["hero", "accueil : bandeau"], ["sections", "sections : bandeau"], ["items", "pages d'items : bandeau"], ["cards", "cartes sans cover"], ["notFound", "404 : bandeau"]] as const).map(([z, l]) => (
-          <Dither key={z} label={l} value={data.ditherField?.[z]} onChange={(v) => set("ditherField", clean({ ...data.ditherField, [z]: v }))} />
-        ))}
-      </fieldset>
       <Texts label="texts (textes de l'interface)" value={data.texts} onChange={(v) => set("texts", v)} />
       <fieldset className="space-y-2 border border-foreground p-3">
         <legend className="px-1 text-sm">socials</legend>
@@ -529,6 +483,8 @@ function Variable({ k, value, onChange }: { k: string; value: string; onChange: 
   return <input className={box} value={value} onChange={(e) => onChange(e.target.value)} type={k.includes("URL") ? "url" : "text"} />;
 }
 
+const KNOWN = ["NOTION_SECRET", "SITE_DATA", "IMAGES_PROCESS", "NEXT_PUBLIC_ANALYTICS_SERVER_URL", "NEXT_PUBLIC_ANALYTICS_ID", "NETLIFY_BUILD_HOOK"];
+
 export function Editor({ file, content, save }: { file: string; content: string; save: (f: FormData) => void }) {
   const [lines, setLines] = useState(() => parse(content));
   const [newKey, setNewKey] = useState("");
@@ -554,6 +510,16 @@ export function Editor({ file, content, save }: { file: string; content: string;
             <Variable k={l.key} value={l.value} onChange={(v) => update(i, v)} />
           </section>
         ) : null,
+      )}
+      {KNOWN.some((k) => !lines.some((l) => "key" in l && l.key === k)) && (
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span>Variables absentes :</span>
+          {KNOWN.filter((k) => !lines.some((l) => "key" in l && l.key === k)).map((k) => (
+            <button key={k} type="button" className={`${btn} font-mono`} onClick={() => setLines([...lines, { key: k, value: k === "SITE_DATA" ? "{}" : "", quote: k === "SITE_DATA" ? "'" : "" }])}>
+              + {k}
+            </button>
+          ))}
+        </div>
       )}
       <div className="flex gap-2">
         <input className={box} placeholder="NOUVELLE_VARIABLE" value={newKey} onChange={(e) => setNewKey(e.target.value.toUpperCase())} />

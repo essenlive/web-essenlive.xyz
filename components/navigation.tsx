@@ -43,7 +43,7 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
             {sitename}
           </Link>
           {navigation && navigation.length > 0 && (
-            <nav aria-label={texts.navLabel} className="flex flex-wrap gap-x-5 gap-y-4 md:flex-col md:gap-y-2">
+            <nav aria-label={texts.menu} className="flex flex-wrap gap-x-5 gap-y-4 md:flex-col md:gap-y-2">
               {navigation.map((navItem) => {
                 const isActive = pathname === navItem.path || pathname.startsWith(navItem.path + '/');
                 return (
