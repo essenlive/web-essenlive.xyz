@@ -4,6 +4,7 @@ import { BlockObjectResponse } from '@/lib/types'
 import { CodeHighlighter } from '../code'
 import { MermaidDiagram } from '../mermaid-diagram'
 import { RichText } from './rich-text'
+import { useTexts } from '@/components/site-texts'
 import { ParagraphBlock, HeadingBlock } from './text-blocks'
 import { BulletedListItemBlock, NumberedListItemBlock, TodoBlock, ToggleBlock } from './list-blocks'
 import { ImageBlock, VideoBlock, AudioBlock, FileBlock } from './media-blocks'
@@ -200,7 +201,8 @@ function CalloutBlock({ block, children }: { block: any; children?: BlockWithChi
 }
 
 /** Bookmark / link preview: a ruled line, kind in mono, the URL as a plain link. */
-function UrlRow({ kind, url }: { kind: string; url: string }) {
+function UrlRow({ url }: { url: string }) {
+  const kind = useTexts().linkKind
   return (
     <p className="my-6 flex flex-wrap items-baseline gap-x-4 gap-y-1 border-y border-border py-3">
       <span className="font-mono text-meta text-muted-foreground">{kind}</span>
@@ -212,14 +214,15 @@ function UrlRow({ kind, url }: { kind: string; url: string }) {
 }
 
 function BookmarkBlock({ block }: { block: any }) {
-  return <UrlRow kind="lien" url={block.url} />
+  return <UrlRow url={block.url} />
 }
 
 function LinkPreviewBlock({ block }: { block: any }) {
-  return <UrlRow kind="lien" url={block.url} />
+  return <UrlRow url={block.url} />
 }
 
 function EmbedBlock({ block }: { block: any }) {
+  const texts = useTexts()
   return (
     <div className="my-6 w-full aspect-video overflow-hidden border border-foreground bg-muted">
       <iframe
@@ -228,7 +231,7 @@ function EmbedBlock({ block }: { block: any }) {
         allowFullScreen
         loading="lazy"
         sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-        title="Contenu intégré"
+        title={texts.embedTitle}
       />
     </div>
   )

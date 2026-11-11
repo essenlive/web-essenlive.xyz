@@ -3,6 +3,7 @@
 import React from 'react'
 import { RichText } from './rich-text'
 import { BlockWithChildren } from '@/lib/types'
+import { useTexts } from '@/components/site-texts'
 
 export function BulletedListItemBlock({
   block,
@@ -69,13 +70,14 @@ export function TodoBlock({
   renderChildren?: (blocks: BlockWithChildren[]) => React.ReactNode;
 }) {
   const isChecked = block.checked
+  const texts = useTexts()
 
   return (
     <div className="space-y-2">
       <div className="flex items-start space-x-3">
         <span
           role="img"
-          aria-label={isChecked ? 'fait' : 'à faire'}
+          aria-label={isChecked ? texts.checkboxDone : texts.checkboxTodo}
           className="font-mono text-meta text-foreground"
         >
           {isChecked ? '[x]' : '[ ]'}

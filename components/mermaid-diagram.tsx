@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react'
+import { useTexts } from '@/components/site-texts'
 
 interface MermaidDiagramProps {
   chart: string
@@ -8,6 +9,7 @@ interface MermaidDiagramProps {
 }
 
 export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
+  const texts = useTexts()
   const containerRef = useRef<HTMLDivElement>(null)
   const [isInitialized, setIsInitialized] = useState(false)
   const [mermaidModule, setMermaidModule] = useState<any>(null)
@@ -66,11 +68,11 @@ export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
                 <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
-                <p class="font-medium">Error rendering diagram</p>
-                <p class="text-sm mt-1">Please check the diagram syntax</p>
+                <p class="font-medium">${texts.mermaidError}</p>
+                <p class="text-sm mt-1">${texts.mermaidErrorHint}</p>
               </div>
               <details class="text-left">
-                <summary class="text-xs cursor-pointer hover:text-foreground">View diagram code</summary>
+                <summary class="text-xs cursor-pointer hover:text-foreground">${texts.mermaidShowCode}</summary>
                 <pre class="text-xs mt-2 p-3 bg-background rounded border overflow-x-auto"><code>${chart}</code></pre>
               </details>
             </div>
@@ -80,7 +82,7 @@ export function MermaidDiagram({ chart, className = "" }: MermaidDiagramProps) {
     }
 
     renderDiagram()
-  }, [chart, isInitialized, mermaidModule])
+  }, [chart, isInitialized, mermaidModule, texts])
 
   return (
     <div 

@@ -1,7 +1,9 @@
 import Link from "next/link"
 import { CoverImage } from "@/components/cover-image"
-import { PageData } from "@/lib/notion"
+import { PageData, getDither } from "@/lib/notion"
 import { RenderProperties } from "@/components/notion/render-properties"
+import { cn } from "@/lib/utils"
+import { DitherZone } from "@/components/dither-zone"
 
 interface PageCardProps {
   page: PageData;
@@ -15,6 +17,8 @@ export function PageCard({ page, level = 3 }: PageCardProps) {
   const summary = page.cardProperties?.includes("Description") && desc?.type === "rich_text" && desc.value
     ? String(desc.value)
     : null;
+  // Cards without a cover get the dither field instead of the bare hatch.
+  const dither = page.cover ? null : getDither("cards", page.ditherField?.cards);
   const Heading = `h${level}` as const;
   const metaProperties = page.cardProperties?.filter((k) => k !== "Description");
 
@@ -30,7 +34,7 @@ export function PageCard({ page, level = 3 }: PageCardProps) {
   return (
     <article className="group relative flex min-w-0 flex-col has-[a:focus-visible]:outline-2 has-[a:focus-visible]:-outline-offset-4 has-[a:focus-visible]:outline-foreground">
       {/* Same 4:3 frame for every card, flush with the cell; without a cover the hatch is the picture. */}
-      <div className="dither relative aspect-[4/3] overflow-hidden border-b border-foreground">
+      <div className={cn("relative aspect-[4/3] overflow-hidden border-b border-foreground", !dither && "dither")}>
         {page.cover && (
           <CoverImage
             src={page.cover.thumbnail ?? page.cover.url}
@@ -41,6 +45,7 @@ export function PageCard({ page, level = 3 }: PageCardProps) {
             sizes="(max-width: 640px) 100vw, 33vw"
           />
         )}
+        {dither && <DitherZone options={dither} mode="fill" />}
       </div>
       <div className="flex flex-col gap-1 p-4">
         <Heading className="text-title font-bold">{title}</Heading>

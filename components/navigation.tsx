@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useTexts } from "@/components/site-texts"
 
 interface NavigationProps {
   sitename: string;
@@ -25,6 +26,7 @@ const href = (url: string) => (/^[a-z][a-z\d+.-]*:/i.test(url) || !url.includes(
 
 export function Navigation({ sitename, navigation, socials }: NavigationProps) {
   const pathname = usePathname();
+  const texts = useTexts();
 
   const links = (socials ?? []).filter((l) => l.title && l.url).map((l) => ({ label: l.title, href: href(l.url) }));
 
@@ -38,10 +40,10 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
             aria-current={pathname === "/" ? "page" : undefined}
             className={cn(linkHit, marker, "font-bold no-underline md:text-title", pathname === "/" && current)}
           >
-            {sitename || "essenlive.xyz"}
+            {sitename}
           </Link>
           {navigation && navigation.length > 0 && (
-            <nav aria-label="Pages" className="flex flex-wrap gap-x-5 gap-y-4 md:flex-col md:gap-y-2">
+            <nav aria-label={texts.navLabel} className="flex flex-wrap gap-x-5 gap-y-4 md:flex-col md:gap-y-2">
               {navigation.map((navItem) => {
                 const isActive = pathname === navItem.path || pathname.startsWith(navItem.path + '/');
                 return (
@@ -71,7 +73,7 @@ export function Navigation({ sitename, navigation, socials }: NavigationProps) {
                   className={cn(linkHit, "underline decoration-1 after:-inset-y-3")}
                 >
                   {link.label}
-                  {external && <span className="sr-only"> (nouvel onglet)</span>}
+                  {external && <span className="sr-only"> {texts.newTab}</span>}
                 </a>
               );
             })}

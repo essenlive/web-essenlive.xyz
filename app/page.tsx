@@ -4,8 +4,12 @@ import {
   getDatabaseItems,
   getPageByPath,
   getFeaturedItems,
-  getSiteStructure
+  getSiteStructure,
+  getTexts,
+  getDither,
 } from "@/lib/notion";
+import { TextsProvider } from "@/components/site-texts";
+import { DitherZone } from "@/components/dither-zone";
 import { Featured } from "@/components/featured";
 import { Page } from "@/components/notion/page";
 import { Database } from "@/components/notion/database";
@@ -17,7 +21,7 @@ const pageData = await getPageByPath(`/`);
   
 export async function generateMetadata() {
   if (!pageData) {
-    return { title: "Page Not Found" };
+    return { title: getTexts().pageNotFoundTitle };
   }
   const desc = pageData.properties?.Description;
   const description = desc?.type === "rich_text" && desc.value ? String(desc.value) : undefined;
@@ -28,10 +32,23 @@ export default async function HomePage() {
 
   if (!pageData) { notFound();}
 
+  const texts = getTexts(pageData);
+  const dither = getDither("hero", pageData.ditherField?.header);
+  const band = dither && <DitherZone options={dither} className="mt-14" />;
+  // Under a band the content needs less top margin.
+  const body = "[&>article]:mt-7";
+
   // Handle database list view (/category)
   if (pageData.type === "database") {
     const items = await getDatabaseItems(pageData);
-    return <Database page={pageData} items={items || []} header={!!pageData.showTitle} />;
+    return (
+      <TextsProvider texts={texts}>
+        {band}
+        <div className={dither ? body : undefined}>
+          <Database page={pageData} items={items || []} header={!!pageData.showTitle} />
+        </div>
+      </TextsProvider>
+    );
   }
 
   // Handle single page view (/page-slug)
@@ -41,10 +58,14 @@ export default async function HomePage() {
       ? await getFeaturedItems(pageData.featured)
       : null;
     return (
-      <>
-        <Page page={pageData} blocks={blocks || []} header={!!pageData.showTitle} />
+      <TextsProvider texts={texts}>
+        {band}
+        <div className={dither ? body : undefined}>
+          <Page page={pageData} blocks={blocks || []} header={!!pageData.showTitle} />
+        </div>
         {featured && (
           <Featured
+            texts={texts}
             title={pageData.featured?.title}
             source={featured.source}
             displayType={pageData.featured?.displayType}
@@ -52,7 +73,7 @@ export default async function HomePage() {
             items={featured.items}
           />
         )}
-      </>
+      </TextsProvider>
     );
   }
 

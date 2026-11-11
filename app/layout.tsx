@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Navigation } from "@/components/navigation";
-import { getSiteStructure } from "@/lib/notion";
+import { getSiteStructure, getTexts } from "@/lib/notion";
+import { TextsProvider } from "@/components/site-texts";
 import { PageSize } from "@/components/page-size";
 import { RedeployButton } from "@/components/redeploy-button";
 import Script from "next/script";
@@ -15,7 +16,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { sitename,structure,  socials } = getSiteStructure();
+  const { sitename, structure, socials, lang } = getSiteStructure();
+  const texts = getTexts();
   const navigation = Object.values(structure)
     .filter((p) => p.path !== "/")
     .map((p) => ({
@@ -24,7 +26,7 @@ export default function RootLayout({
     }));
 
   return (
-    <html lang="fr">
+    <html lang={lang ?? "fr"}>
       <body className="font-sans antialiased min-h-screen">
 
         {process.env.NODE_ENV !== "development" && (
@@ -40,8 +42,9 @@ export default function RootLayout({
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:border focus:border-foreground focus:bg-background focus:px-3 focus:py-2"
         >
-          Aller au contenu
+          {texts.skipLink}
         </a>
+        <TextsProvider texts={texts}>
         <div className="overflow-x-clip">
         <div className="relative grid min-h-screen w-full grid-rows-[auto_1fr] bg-background text-foreground md:grid-cols-[calc(15rem+50px)_minmax(0,1fr)] md:grid-rows-none">
           <Navigation
@@ -54,12 +57,13 @@ export default function RootLayout({
               {children}
             </main>
             <footer className="text-meta rule-r relative -mx-6 flex flex-wrap justify-between gap-x-6 px-6 py-3.5 font-mono text-muted-foreground md:-ml-10 md:pl-10">
-              <span>polices système · images tramées<span className="hidden sm:inline"> 32 couleurs</span></span>
+              <span>{texts.footer}{texts.footerExtra && <span className="hidden sm:inline"> {texts.footerExtra}</span>}</span>
               <span><PageSize /> · <RedeployButton date={new Date().toISOString().slice(0, 10)} /></span>
             </footer>
           </div>
         </div>
         </div>
+        </TextsProvider>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 import { Fragment, type ReactNode } from "react"
 import { CleanPageProperties } from "@/lib/types"
 import { formatDate, cn } from "@/lib/utils"
+import { NewTab } from "@/components/site-texts"
 
 /** Shows the host only; the full URL stays in the href. */
 const urlHost = (url: string) => {
@@ -41,7 +42,7 @@ function propertyValue(propKey: string, propValue: CleanPageProperties[string]):
     case "url":
       return (
         <a href={propValue.value} target="_blank" rel="noopener noreferrer" className="underline break-all">
-          {urlHost(propValue.value)} →<span className="sr-only"> (nouvel onglet)</span>
+          {urlHost(propValue.value)} →<NewTab />
         </a>
       );
 

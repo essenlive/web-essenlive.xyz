@@ -53,6 +53,7 @@ import { Client } from '@notionhq/client'
 import { cache } from 'react'
 import { downloadImage } from './imageProcessor'
 import { normalizeSiteStructureUUIDs } from './utils'
+import { mergeTexts, resolveDither, type DitherSetting, type DitherZone, type SiteTexts } from './site-config'
 import type {
   SiteData,
   PageDefinition,
@@ -119,6 +120,13 @@ export const getSiteStructure = cache(() => {
   });
   return siteData as unknown as SiteData;
 })
+
+/** Interface strings: built-in defaults, then SITE_DATA.texts, then the section's own `texts`. */
+export const getTexts = (entry?: { texts?: Partial<SiteTexts> }) => mergeTexts(getSiteStructure().texts, entry?.texts)
+
+/** Options of a dither-field zone, or null when it is off. `entry` is the section's own setting, which wins over SITE_DATA.ditherField. */
+export const getDither = (zone: DitherZone, entry?: DitherSetting) =>
+  resolveDither(zone, entry, getSiteStructure().ditherField?.[zone])
 
 /**
  * Fetches all pages and databases defined in the site structure

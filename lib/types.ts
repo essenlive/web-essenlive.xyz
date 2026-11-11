@@ -1,3 +1,4 @@
+import type { DitherEntry, DitherZones, SiteTexts } from "./site-config";
 import {
   PageObjectResponse,
   DatabaseObjectResponse,
@@ -13,6 +14,12 @@ export type SiteData = {
   };
   /** Footer/nav links; a bare email address becomes a mailto: link. */
   socials?: { title: string; url: string }[];
+  /** `<html lang>` (default "fr"). */
+  lang?: string;
+  /** Overrides of the interface strings, see DEFAULT_TEXTS in lib/site-config.ts. */
+  texts?: Partial<SiteTexts>;
+  /** Where the dither-field effect shows and how (all zones on by default). */
+  ditherField?: DitherZones;
 };
 
 export type PageDefinition = {
@@ -42,6 +49,10 @@ export type PageDefinition = {
   /** Grid columns from `lg` up (default 3). */
   columns?: number;
   featured?: FeaturedDefinition;
+  /** Overrides of the interface strings for this section only. */
+  texts?: Partial<SiteTexts>;
+  /** Overrides of the dither-field zones for this section only. */
+  ditherField?: DitherEntry;
 };
 
 /**

@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
+import { useTexts } from "@/components/site-texts"
 
 /** Weight of what the browser fetched for this page (document + assets), read from the Performance API. */
 export function PageSize() {
   const pathname = usePathname();
+  const { sizeUnit } = useTexts();
   const [kb, setKb] = useState<number | null>(null);
 
   useEffect(() => {
@@ -19,5 +21,5 @@ export function PageSize() {
     return () => clearTimeout(t);
   }, [pathname]);
 
-  return <>{kb === null ? "… ko" : `${kb} ko`}</>;
+  return <>{kb === null ? `… ${sizeUnit}` : `${kb} ${sizeUnit}`}</>;
 }

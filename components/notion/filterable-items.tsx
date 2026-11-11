@@ -2,6 +2,8 @@
 
 import { createContext, Fragment, useContext, useState, type ReactNode } from "react";
 import { CellGrid } from "@/components/cell-grid";
+import { useTexts } from "@/components/site-texts";
+import { fill } from "@/lib/site-config";
 
 export type FilterEntry = { id: string; tags: string[]; text: string; node: ReactNode };
 
@@ -16,13 +18,14 @@ export function FilterProvider({ children }: { children: ReactNode }) {
 
 export function SearchInput() {
   const { q, setQ } = useContext(Ctx);
+  const texts = useTexts();
   return (
     <input
       type="search"
       value={q}
       onChange={(e) => setQ(e.target.value)}
-      placeholder="rechercher"
-      aria-label="Rechercher dans les entrées"
+      placeholder={texts.searchPlaceholder}
+      aria-label={texts.searchLabel}
       className="text-meta min-w-32 border border-foreground bg-transparent px-2 py-0.5 font-mono"
     />
   );
@@ -31,11 +34,12 @@ export function SearchInput() {
 /** Toggle tags; selected tags are ORed. Plain mono text, underlined when on; "tout" clears. */
 export function FilterTags({ tags }: { tags: string[] }) {
   const { on, toggle, clear } = useContext(Ctx);
+  const texts = useTexts();
   const btn = "underline-offset-[3px] decoration-1 focus-visible:outline-2 focus-visible:outline-foreground";
   return (
     <ul className="text-meta m-0 flex list-none flex-wrap gap-x-3.5 gap-y-1 p-0 font-mono">
       <li>
-        <button type="button" aria-pressed={!on.length} onClick={clear} className={`${btn} aria-pressed:font-bold aria-pressed:underline`}>tout</button>
+        <button type="button" aria-pressed={!on.length} onClick={clear} className={`${btn} aria-pressed:font-bold aria-pressed:underline`}>{texts.filterAll}</button>
       </li>
       {tags.map((t) => (
         <li key={t}>
@@ -51,6 +55,7 @@ export function FilterTags({ tags }: { tags: string[] }) {
 /** Items pre-rendered on the server. */
 export function FilterableItems({ entries, list, columns }: { entries: FilterEntry[]; list: boolean; columns?: number }) {
   const { on, q } = useContext(Ctx);
+  const texts = useTexts();
   const needle = q.trim().toLowerCase();
   const shown = entries.filter(
     (e) => (!on.length || e.tags.some((t) => on.includes(t))) && (!needle || e.text.includes(needle))
@@ -60,7 +65,7 @@ export function FilterableItems({ entries, list, columns }: { entries: FilterEnt
   return (
     <>
       <p aria-live="polite" className="text-meta m-0 mb-3.5 font-mono text-muted-foreground">
-        {shown.length === 0 ? "aucun résultat" : shown.length < entries.length ? `${shown.length} sur ${entries.length}` : null}
+        {shown.length === 0 ? texts.noResults : shown.length < entries.length ? fill(texts.resultCount, { shown: shown.length, total: entries.length }) : null}
       </p>
       {list ? (
         <ul className="index rule-t mb-7 list-none p-0">{nodes}</ul>

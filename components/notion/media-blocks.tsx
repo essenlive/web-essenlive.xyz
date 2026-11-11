@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { useTexts } from '@/components/site-texts'
 
 function blockUrl(block: any): string {
   if (block.type === 'file' && block.file) return block.file.url
@@ -55,13 +56,16 @@ export function ImageBlock({ block }: { block: any }) {
 }
 
 export function VideoBlock({ block }: { block: any }) {
-  return <LinkRow kind="vidéo" name="Vidéo" url={blockUrl(block)} action="regarder →" />
+  const t = useTexts()
+  return <LinkRow kind={t.videoKind} name={t.videoName} url={blockUrl(block)} action={t.videoAction} />
 }
 
 export function AudioBlock({ block }: { block: any }) {
-  return <LinkRow kind="audio" name="Audio" url={blockUrl(block)} action="écouter →" />
+  const t = useTexts()
+  return <LinkRow kind={t.audioKind} name={t.audioName} url={blockUrl(block)} action={t.audioAction} />
 }
 
 export function FileBlock({ block }: { block: any }) {
-  return <LinkRow kind="fichier" name={block.name || 'Fichier'} url={blockUrl(block)} action="télécharger →" />
+  const t = useTexts()
+  return <LinkRow kind={t.fileKind} name={block.name || t.fileName} url={blockUrl(block)} action={t.fileAction} />
 }
